@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  angular:
+    container_name: dropbucket_nestjs
+    image: node:20-alpine3.20
+    working_dir: /app
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+    # command: sh -c "npm i -g @nestjs/cli && nest new dropbucket_nestjs"
+    command: sh -c "yarn start"
