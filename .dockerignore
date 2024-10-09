@@ -1,0 +1,10 @@
+.git
+.gitignore
+
+yarn.lock
+
+docker-compose.yml
+Dockerfile
+
+node_modules
+test

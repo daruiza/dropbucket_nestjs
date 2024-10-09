@@ -3,7 +3,7 @@ version: '3'
 services:
   angular:
     container_name: dropbucket_nestjs
-    image: node:20-alpine3.20
+    image: node:22.7.0-alpine3.20
     working_dir: /app
     ports:
       - 3000:3000
