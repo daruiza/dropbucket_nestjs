@@ -1,13 +1,32 @@
-version: '3'
+# version: '3.8'
+
+# services:
+#   angular:
+#     container_name: dropbucket_nestjs
+#     image: node:22.7.0-alpine3.20
+#     working_dir: /app
+#     ports:
+#       - 3000:3000
+#     volumes:
+#       - ./:/app
+#     # command: sh -c "npm i -g @nestjs/cli && nest new dropbucket_nestjs"
+#     command: sh -c "npm i -g @nestjs/cli && yarn start"
+    
+
+
+version: '3.8'
 
 services:
-  angular:
+  nestjs:
     container_name: dropbucket_nestjs
-    image: node:22.7.0-alpine3.20
-    working_dir: /app
+    build:
+      context: .
+    restart: unless-stopped
     ports:
       - 3000:3000
     volumes:
-      - ./:/app
-    # command: sh -c "npm i -g @nestjs/cli && nest new dropbucket_nestjs"
-    command: sh -c "yarn start"
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run start:devtsnd

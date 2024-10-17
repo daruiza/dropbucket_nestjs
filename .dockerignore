@@ -1,10 +1,7 @@
-.git
-.gitignore
-
-yarn.lock
-
-docker-compose.yml
-Dockerfile
-
-node_modules
-test
+*
+!package.json
+!package-lock.json
+!yarn.lock
+!tsconfig.json
+!tsconfig.build.json
+!src
