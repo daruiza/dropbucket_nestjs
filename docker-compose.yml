@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  nestjs:
+    container_name: dropbucket_nestjs
+    image: node:22.7.0-alpine3.20
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app     
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
