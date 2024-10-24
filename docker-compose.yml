@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  postgres:
+    container_name: dropbucket_postgres
+    image: postgres:13.16
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=dropbucket
+    ports:
+      - 5432:5432
+    volumes:
+      - dropbucket_volume:/var/lib/postgresql/data
+
   nestjs:
     container_name: dropbucket_nestjs
     image: node:22.7.0-alpine3.20
@@ -13,3 +25,9 @@ services:
     environment:
       - NODE_ENV=development
     command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
+    depends_on:
+      - postgres
+
+volumes:
+  dropbucket_volume:
+    external: true
