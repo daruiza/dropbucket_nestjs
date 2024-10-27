@@ -1,12 +1,20 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Matches, MinLength } from "class-validator";
+import { Type } from "class-transformer";
+import { IsEmail, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 
 export class CreateUserDto {
     // @IsNumber()
     // id: number;
+   
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
+    @MaxLength(16)
+    @Matches(/^[a-zA-Z0-9]+$/)
+    name: string;
+
+    @IsString()   
+    @IsOptional()
     names: string;
 
     @IsOptional()
@@ -44,6 +52,7 @@ export class CreateUserDto {
     @IsString()
     photo?: string;
 
-    @IsNumberString()
-    rol_id: number;
+    @IsNumber()
+    @Type(() => Number)
+    rolId: number;
 }

@@ -10,6 +10,7 @@ async function bootstrap() {
     whitelist: true
   }))
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('DropBucket documentation')
     .setDescription('The DropBucket API description')
     .setVersion('1.0')

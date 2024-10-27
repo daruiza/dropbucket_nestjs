@@ -1,19 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
+import { PrismaService } from '../../prisma.service';
 
 @Injectable()
 export class RolService {
+
+  constructor(private prisma: PrismaService){}
+
   create(createRolDto: CreateRolDto) {
-    return 'This action adds a new rol';
+    return this.prisma.rol.create({data: createRolDto})
   }
 
   findAll() {
-    return `This action returns all rol`;
+    return this.prisma.rol.findMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} rol`;
+  async findOne(id: number) {
+    const rol = await this.prisma.rol.findFirst({where: {id}})
+
+    if (!rol) {
+      throw new NotFoundException(`Rol with ID ${id} not found`);
+    }
+    return rol;
   }
 
   update(id: number, updateRolDto: UpdateRolDto) {
