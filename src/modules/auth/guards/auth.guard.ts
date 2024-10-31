@@ -10,6 +10,7 @@ import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+
   constructor(private jwtService: JwtService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -26,11 +27,8 @@ export class AuthGuard implements CanActivate {
           secret: process.env.JWT_SECRET
         }
       );
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
       request['user'] = payload;
-
-      console.log('AuthGuard-payload', payload);
+      // console.log('AuthGuard-payload', payload);
 
     } catch {
       throw new UnauthorizedException();

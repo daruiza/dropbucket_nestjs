@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { SingupAuthDto } from './dto/singup-auth.dto';
+import { AuthGuard } from './guards/auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('signup')
   signup(@Body() singupAuthDto: SingupAuthDto) {
@@ -20,6 +21,7 @@ export class AuthController {
   }
 
   @Get('user')
+  @UseGuards(AuthGuard)
   user() {
     return this.authService.user();
   }
@@ -29,5 +31,5 @@ export class AuthController {
     return this.authService.user();
   }
 
-  
+
 }

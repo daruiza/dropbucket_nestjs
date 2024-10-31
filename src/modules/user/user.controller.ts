@@ -17,13 +17,12 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post()
-  // @UseGuards(AuthGuard)
   create(@Body(ValidateCreatePipe) createUserDto: CreateUserDto) {
     console.log('create', createUserDto);
     return this.userService.create(createUserDto);
   }
 
-  @Get()  
+  @Get()
   findAll() {
     return this.userService.findAll();
   }
@@ -44,7 +43,9 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseIntPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 

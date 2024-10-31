@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { UserService } from '../user/user.service';
 import { SingupAuthDto } from './dto/singup-auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class AuthService {
 
   constructor(
+    @Inject(REQUEST) private request,
     private userService: UserService,
     private jwtService: JwtService
   ) { }
@@ -28,22 +30,27 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { 
-      id: user.id, 
-      name: user.name,
-      rol: user.rol.id,
-    };
-    
+    // const payload = {
+    //   id: user.id,
+    //   name: user.name,
+    //   rol: {
+    //     id: user.rol.id,
+    //     name: user.rol.name,
+    //   },
+    // };
+
+    const payload = user;
+
     return {
-      message: 'Login successful',
       user,
+      message: 'Login successful',
       token: await this.jwtService.signAsync(payload),
     };
   }
 
   user() {
-    return new NotFoundException(`This action returns all auth`);
-    return `This action returns all auth`;
+    // return new NotFoundException(`This action returns all auth`);
+    return this.request.user;
   }
 
   logout() {

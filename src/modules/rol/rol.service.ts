@@ -18,18 +18,30 @@ export class RolService {
 
   async findOne(id: number) {
     const rol = await this.prisma.rol.findFirst({where: {id}})
-
     if (!rol) {
       throw new NotFoundException(`Rol with ID ${id} not found`);
     }
     return rol;
   }
 
-  update(id: number, updateRolDto: UpdateRolDto) {
-    return `This action updates a #${id} rol`;
+  async update(id: number, updateRolDto: UpdateRolDto) {
+    const user = await this.prisma.rol.findUnique({ where: { id: id } });
+    if (!user) {
+      throw new NotFoundException(`Rol with ID ${id} not found`);
+    }
+
+    // Actualiza el usuario
+    return this.prisma.rol.update({
+      where: { id },
+      data: updateRolDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} rol`;
+  async remove(id: number) {
+    const user = await this.prisma.rol.findUnique({ where: { id: id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return this.prisma.rol.delete({ where: { id: id } })
   }
 }
