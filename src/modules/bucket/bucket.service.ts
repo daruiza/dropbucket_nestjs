@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { DeleteStatusCode } from '../../enums/delete-status-code.enum';
 import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 
