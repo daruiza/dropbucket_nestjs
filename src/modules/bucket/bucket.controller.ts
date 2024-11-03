@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { UpdateBucketDto } from './dto/update-bucket.dto';
@@ -18,36 +18,44 @@ export class BucketController {
   @Get('list')
   async listObjects(
     @Query('prefix') prefix?: string,
+    @Query('delimiter') delimiter?: string,
   ): Promise<{ files: string[], folders: string[] }> {
-    return await this.bucketService.listObjects(prefix);
+    return await this.bucketService.listObjects(prefix, delimiter);
   }
 
+
+  @Get('exists/:fileKey')
+  async checkFileExists(@Param('fileKey') fileKey: string): Promise<{ exists: boolean }> {
+    try {
+      const exists = await this.bucketService.checkFileExists(fileKey);
+      return { exists };
+    } catch (error) {
+      throw new HttpException(
+        'Error al verificar la existencia del archivo',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile(
-    new ParseFilePipe({
-      validators: [
-        new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-        new MaxFileSizeValidator({
-          maxSize: 10485760,
-          message: 'File is too large. Max file size is 10MB',
-        }),
-      ],
-      fileIsRequired: true,
-    })
-  ) file: Express.Multer.File,
-    @Body() body: any
+  async uploadFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md)' }),
+          new MaxFileSizeValidator({
+            maxSize: 10485760,
+            message: 'File is too large. Max file size is 10MB',
+          }),
+        ],
+        fileIsRequired: true,
+      })
+    ) file: Express.Multer.File,
+    @Body('prefix') prefix?: string,
   ): Promise<any> {
-    return await this.bucketService.uploadFile(file);
+    return await this.bucketService.uploadFile(file, prefix);
   }
-
-  @Post('uploadsimple')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadsimple(@UploadedFile() file: Express.Multer.File): Promise<any> {
-    return await this.bucketService.uploadFile(file);
-  }
-
 
   @Get(':key')
   async getFile(@Param('key') key: string, @Res() res: Response) {
@@ -61,29 +69,27 @@ export class BucketController {
     res.send(fileBuffer);
   }
 
-
-  @Post()
-  create(@Body() createBucketDto: CreateBucketDto) {
-    return this.bucketService.create(createBucketDto);
+  @Post('create/prefix')
+  async createFolder(
+    @Query('key') key: string) {
+    return await this.bucketService.createFolder(key);    
   }
 
-  @Get()
-  findAll() {
-    return this.bucketService.findAll();
+  @Delete('delete/prefix')
+  async delteFolder(
+    @Query('key') key: string) {
+    return await this.bucketService.deleteFolder(key);    
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bucketService.findOne(+id);
+
+  @Delete()
+  async deleteFile(
+    @Query('key') key: string,
+    @Res() res: Response) {
+    const fileBuffer = await this.bucketService.deleteFile(key);
+    res.send(fileBuffer);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBucketDto: UpdateBucketDto) {
-    return this.bucketService.update(+id, updateBucketDto);
-  }
+  // TODO, CREAR Y BORRR UNA CARPETA
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bucketService.remove(+id);
-  }
 }
