@@ -22,7 +22,7 @@ export class BucketService {
     this.bucketName = process.env.AWS_BUCKET; // Nombre del bucket
   }
 
-  async listObjects(prefix: string = '', delimiter: string = '/'): Promise<{ files: string[], folders: string[] }> {
+  async listObjects(prefix: string = '', delimiter: string = '/', size: boolean = false): Promise<{ files: any[], folders: any[] }> {
     const params = {
       Bucket: this.bucketName,
       Prefix: prefix, // Puedes usar un prefijo para filtrar los resultados
@@ -33,8 +33,28 @@ export class BucketService {
     try {
       const data = await this.s3Client.send(new ListObjectsCommand(params));
 
-      const files = data.Contents ? data.Contents.map((item) => item.Key || '') : [];
-      const folders = data.CommonPrefixes ? data.CommonPrefixes.map((prefix) => prefix.Prefix || '') : [];
+      const files = data.Contents ? data.Contents.map((item: any) => ({
+        Key: item.Key,
+        LastModified: item.LastModified,
+        Size: item.Size,
+      })) : [];
+
+      let folders = data.CommonPrefixes ? data.CommonPrefixes.map((prefix) => prefix.Prefix || '') : [];
+      if (size) {
+        const folders = data.CommonPrefixes ? await Promise.all(
+          data.CommonPrefixes.map(async (prefix) => {
+            const folderPrefix = prefix.Prefix || '';
+
+            // Obtenemos el tamaño total de los objetos bajo este prefijo (carpeta)
+            const folderSize = await this.getFolderSize(folderPrefix);
+
+            return {
+              Prefix: folderPrefix,
+              Size: folderSize,
+            };
+          })
+        ) : [];
+      }
 
       return { files, folders };
 
@@ -42,6 +62,35 @@ export class BucketService {
       throw new Error(`Error al listar objetos en el bucket: ${error.message}`);
     }
   }
+
+  // Método auxiliar para calcular el tamaño total de una carpeta
+  private async getFolderSize(folderPrefix: string): Promise<number> {
+    let totalSize = 0;
+    let continuationToken;
+
+    do {
+      const params = {
+        Bucket: this.bucketName,
+        Prefix: folderPrefix,
+        ContinuationToken: continuationToken,
+      };
+
+      const data = await this.s3Client.send(new ListObjectsCommand(params));
+
+      // Sumamos el tamaño de cada objeto bajo el prefijo de la carpeta
+      if (data.Contents) {
+        totalSize += data.Contents.reduce((sum, item) => sum + (item.Size || 0), 0);
+      }
+
+      // Continuamos si hay más objetos en la carpeta
+      // continuationToken = data.NextContinuationToken;
+      continuationToken = data.IsTruncated ? 1 : undefined;
+
+    } while (continuationToken);
+
+    return totalSize;
+  }
+
 
   async checkFileExists(fileKey: string): Promise<boolean> {
     const command = new HeadObjectCommand({
@@ -161,7 +210,7 @@ export class BucketService {
       console.error('Error al crear la carpeta en S3:', error);
       throw new Error('No se pudo crear la carpeta en S3');
     }
-    
+
   }
 
   async deleteFile(key: string): Promise<any> {

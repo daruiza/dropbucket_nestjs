@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -13,17 +13,20 @@ export class BucketController {
   constructor(private readonly bucketService: BucketService) { }
 
 
+  // TODO: el listar debe tambien traer metadatos {tamaño, etc}
   @Get('list')
   async listObjects(
     @Query('prefix') prefix?: string,
     @Query('delimiter') delimiter?: string,
+    @Query('size', ParseBoolPipe) size?: boolean,
   ): Promise<{ files: string[], folders: string[] }> {
-    return await this.bucketService.listObjects(prefix, delimiter);
+    return await this.bucketService.listObjects(prefix, delimiter, size);
   }
 
 
   @Get('exists/:fileKey')
-  async checkFileExists(@Param('fileKey') fileKey: string): Promise<{ exists: boolean }> {
+  async checkFileExists(
+    @Param('fileKey') fileKey: string): Promise<{ exists: boolean }> {
     try {
       const exists = await this.bucketService.checkFileExists(fileKey);
       return { exists };
@@ -70,13 +73,13 @@ export class BucketController {
   @Post('create/prefix')
   async createFolder(
     @Query('key') key: string) {
-    return await this.bucketService.createFolder(key);    
+    return await this.bucketService.createFolder(key);
   }
 
   @Delete('delete/prefix')
   async delteFolder(
     @Query('key') key: string) {
-    return await this.bucketService.deleteFolder(key);    
+    return await this.bucketService.deleteFolder(key);
   }
 
 
