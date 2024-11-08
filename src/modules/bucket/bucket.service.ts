@@ -22,7 +22,10 @@ export class BucketService {
     this.bucketName = process.env.AWS_BUCKET; // Nombre del bucket
   }
 
-  async listObjects(prefix: string = '', delimiter: string = '/', size: boolean = false): Promise<{ files: any[], folders: any[] }> {
+  async listObjects(
+    prefix: string = '',
+    delimiter: string = '/',
+    size: boolean = false): Promise<{ files: any[], folders: any[] }> {
     const params = {
       Bucket: this.bucketName,
       Prefix: prefix, // Puedes usar un prefijo para filtrar los resultados
