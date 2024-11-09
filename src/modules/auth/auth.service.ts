@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import { SingupAuthDto } from './dto/singup-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { REQUEST } from '@nestjs/core';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
 
   async login(loginAuthDto: LoginAuthDto) {
 
-    let user = {};
+    let user: User | undefined;
     if (loginAuthDto.email) {
       user = await this.userService.findOneByEmail(loginAuthDto.email);
       if (!user) {
