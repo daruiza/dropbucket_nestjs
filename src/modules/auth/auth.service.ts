@@ -19,25 +19,28 @@ export class AuthService {
   }
 
   async login(loginAuthDto: LoginAuthDto) {
-    const user = await this.userService.findOneByEmail(loginAuthDto.email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+
+    let user = {};
+    if (loginAuthDto.email) {
+      user = await this.userService.findOneByEmail(loginAuthDto.email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
+
+    if (loginAuthDto.name) {
+      user = await this.userService.findOneByName(loginAuthDto.name);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+    }
+
 
     // Compara la contraseña
     const passwordMatches = await this.userService.comparePasswords(loginAuthDto.password, user.password);
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
-
-    // const payload = {
-    //   id: user.id,
-    //   name: user.name,
-    //   rol: {
-    //     id: user.rol.id,
-    //     name: user.rol.name,
-    //   },
-    // };
 
     const payload = user;
 
