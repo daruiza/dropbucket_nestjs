@@ -37,7 +37,8 @@ export class BucketService {
       const data = await this.s3Client.send(new ListObjectsCommand(params));
 
       const files = data.Contents ? data.Contents.map((item: any) => ({
-        Key: item.Key,
+        Name: item.Key,
+        Extension: this.getFileExtension(item.Key),
         LastModified: item.LastModified,
         Size: item.Size,
       })) : [];
@@ -64,6 +65,11 @@ export class BucketService {
     } catch (error) {
       throw new Error(`Error al listar objetos en el bucket: ${error.message}`);
     }
+  }
+
+  private getFileExtension(fileName: string): string {
+    const parts = fileName.split('.');
+    return parts.length > 1 ? parts[parts.length - 1] : '';
   }
 
   // Método auxiliar para calcular el tamaño total de una carpeta
