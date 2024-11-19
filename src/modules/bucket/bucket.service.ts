@@ -43,9 +43,14 @@ export class BucketService {
         Size: item.Size,
       })) : [];
 
-      let folders = data.CommonPrefixes ? data.CommonPrefixes.map((prefix) => prefix.Prefix || '') : [];
+      let folders = data.CommonPrefixes ? data.CommonPrefixes.map((prefix) => ({
+        Name: prefix.Prefix || '',
+        Size: null,
+      })) : [];
+      console.log('size', size);
+      
       if (size) {
-        const folders = data.CommonPrefixes ? await Promise.all(
+        folders = data.CommonPrefixes ? await Promise.all(
           data.CommonPrefixes.map(async (prefix) => {
             const folderPrefix = prefix.Prefix || '';
 
@@ -53,7 +58,7 @@ export class BucketService {
             const folderSize = await this.getFolderSize(folderPrefix);
 
             return {
-              Prefix: folderPrefix,
+              Name: folderPrefix,
               Size: folderSize,
             };
           })
