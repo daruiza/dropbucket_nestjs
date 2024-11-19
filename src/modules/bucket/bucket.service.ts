@@ -47,7 +47,6 @@ export class BucketService {
         Name: prefix.Prefix || '',
         Size: null,
       })) : [];
-      console.log('size', size);
       
       if (size) {
         folders = data.CommonPrefixes ? await Promise.all(
