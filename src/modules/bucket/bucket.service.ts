@@ -35,7 +35,7 @@ export class BucketService {
 
     try {
       const data = await this.s3Client.send(new ListObjectsCommand(params));
-      
+
       const files = data.Contents ? data.Contents.filter(el => el.Size).map((item: any) => ({
         Name: item.Key,
         Extension: this.getFileExtension(item.Key),
@@ -134,9 +134,14 @@ export class BucketService {
 
     const prefix = prefixarg ? prefixarg.endsWith('/') ? prefixarg : `${prefixarg}/` : '';
     const fileName = file.originalname.replace(/\.[^/.]+$/, ""); // nombre sin extención
-    const fileExt = file.originalname.split('.').pop(); // nombre sin extención
+    let fileExt = file.originalname.split('.').pop(); // nombre sin extención
 
     try {
+      
+      const mime = file.mimetype === 'application/octet-stream'
+        ? this.getMimeType(file.originalname)
+        : file.mimetype;
+
       // Primero miramios si el archivo existe           
       const { files } = await this.listObjects(`${prefix}${fileName}`);
       const key = `${prefix}${fileName}${files ? files.length ? '_' + (+files.length + 1) : '' : ''}.${fileExt}`;
@@ -162,6 +167,20 @@ export class BucketService {
       throw new HttpException(
         `Error al subir el archivo a S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private getMimeType(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'png': return 'image/png';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'pdf': return 'application/pdf';
+      case 'doc': return 'application/msword';
+      case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case 'zip': return 'application/zip';
+      case 'json': return 'application/json';
+      default: return 'application/octet-stream';
     }
   }
 

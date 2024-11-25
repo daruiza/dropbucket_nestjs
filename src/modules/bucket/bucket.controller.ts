@@ -44,7 +44,7 @@ export class BucketController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md)' }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
