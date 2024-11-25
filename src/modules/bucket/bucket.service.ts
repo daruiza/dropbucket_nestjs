@@ -35,8 +35,8 @@ export class BucketService {
 
     try {
       const data = await this.s3Client.send(new ListObjectsCommand(params));
-
-      const files = data.Contents ? data.Contents.map((item: any) => ({
+      
+      const files = data.Contents ? data.Contents.filter(el => el.Size).map((item: any) => ({
         Name: item.Key,
         Extension: this.getFileExtension(item.Key),
         LastModified: item.LastModified,
@@ -47,7 +47,7 @@ export class BucketService {
         Name: prefix.Prefix || '',
         Size: null,
       })) : [];
-      
+
       if (size) {
         folders = data.CommonPrefixes ? await Promise.all(
           data.CommonPrefixes.map(async (prefix) => {
