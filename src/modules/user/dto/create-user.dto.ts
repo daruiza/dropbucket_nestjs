@@ -50,6 +50,10 @@ export class CreateUserDto {
 
     @IsOptional()
     @IsString()
+    prefix?: string;
+
+    @IsOptional()
+    @IsString()
     photo?: string;
 
     @IsNumber()

@@ -7,6 +7,7 @@ export class User {
     password: string;
     phone?: string;
     theme?: string;
+    prefix?: string;
     photo?: string;
     rolId: number;
     createdAt?: Date;

@@ -18,6 +18,7 @@ CREATE TABLE "User" (
     "lastnames" TEXT,
     "phone" TEXT,
     "theme" TEXT,
+    "prefix" TEXT,
     "photo" TEXT,
     "password" TEXT NOT NULL,
     "rolId" INTEGER,
@@ -29,6 +30,9 @@ CREATE TABLE "User" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_rolId_fkey" FOREIGN KEY ("rolId") REFERENCES "Rol"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -30,6 +30,7 @@ model User {
   lastnames  String?
   phone     String?
   theme     String?
+  prefix     String?
   photo     String?
   password  String
   rol       Rol? @relation(fields: [rolId], references: [id])
