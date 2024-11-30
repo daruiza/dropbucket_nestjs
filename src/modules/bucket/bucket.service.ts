@@ -25,7 +25,13 @@ export class BucketService {
   async listObjects(
     prefix: string = '',
     delimiter: string = '/',
-    size: boolean = false): Promise<{ files: any[], folders: any[] }> {
+    size: boolean = false,
+    filter?: { name?: string; date?: Date },
+    sort?: {
+      by: 'name' | 'date';
+      order: 'asc' | 'desc';
+    }
+  ): Promise<{ files: any[], folders: any[] }> {
     const params = {
       Bucket: this.bucketName,
       Prefix: prefix, // Puedes usar un prefijo para filtrar los resultados
@@ -36,7 +42,7 @@ export class BucketService {
     try {
       const data = await this.s3Client.send(new ListObjectsCommand(params));
 
-      const files = data.Contents ? data.Contents.filter(el => el.Size).map((item: any) => ({
+      let files = data.Contents ? data.Contents.filter(el => el.Size).map((item: any) => ({
         Name: item.Key,
         Extension: this.getFileExtension(item.Key),
         LastModified: item.LastModified,
@@ -62,6 +68,43 @@ export class BucketService {
             };
           })
         ) : [];
+      }
+
+      // Aplicar filtros
+      if (filter) {
+        if (filter.name) {
+          const lowerCaseName = filter.name.toLowerCase();
+          files = files.filter((file) =>
+            file.Name.toLowerCase().includes(lowerCaseName)
+          );
+          folders = folders.filter((folder) =>
+            folder.Name.toLowerCase().includes(lowerCaseName)
+          );
+        }
+
+        if (filter.date) {
+          const filterDate = filter.date;
+          files = files.filter((file) =>
+            file.LastModified ? new Date(file.LastModified) >= filterDate : false
+          );
+        }
+      }
+
+      // Ordenar resultados
+      if (sort) {
+        const compareFn = (a: any, b: any) => {
+          if (sort.by === 'name') {
+            const comparison = a.Name.localeCompare(b.Name);
+            return sort.order === 'asc' ? comparison : -comparison;
+          } else if (sort.by === 'date') {
+            const comparison = new Date(a.LastModified).getTime() - new Date(b.LastModified).getTime();
+            return sort.order === 'asc' ? comparison : -comparison;
+          }
+          return 0;
+        };
+
+        files = files.sort(compareFn);
+        folders = folders.sort(compareFn);
       }
 
       return { files, folders };
@@ -137,7 +180,7 @@ export class BucketService {
     let fileExt = file.originalname.split('.').pop(); // nombre sin extención
 
     try {
-      
+
       const mime = file.mimetype === 'application/octet-stream'
         ? this.getMimeType(file.originalname)
         : file.mimetype;
