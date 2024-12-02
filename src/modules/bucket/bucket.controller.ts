@@ -19,8 +19,9 @@ export class BucketController {
     @Query('prefix') prefix?: string,
     @Query('delimiter') delimiter?: string,
     @Query('size', ParseBoolPipe) size?: boolean,
+    @Query('sort') sort?: string,
   ): Promise<{ files: string[], folders: string[] }> {
-    return await this.bucketService.listObjects(prefix, delimiter, size);
+    return await this.bucketService.listObjects(prefix, delimiter, size, null, JSON.parse(sort));
   }
 
 

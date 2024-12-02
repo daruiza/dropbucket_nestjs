@@ -32,6 +32,7 @@ export class BucketService {
       order: 'asc' | 'desc';
     }
   ): Promise<{ files: any[], folders: any[] }> {
+
     const params = {
       Bucket: this.bucketName,
       Prefix: prefix, // Puedes usar un prefijo para filtrar los resultados
@@ -92,6 +93,7 @@ export class BucketService {
 
       // Ordenar resultados
       if (sort) {
+
         const compareFn = (a: any, b: any) => {
           if (sort.by === 'name') {
             const comparison = a.Name.localeCompare(b.Name);
