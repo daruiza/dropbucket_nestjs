@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  wesql:
-    container_name: dropbucket_wesql
-    image: apecloud/wesql-server
-    environment:
-      - MYSQL_DATABASE=${POSTGRES_DB}
-      - MYSQL_ROOT_USER=${POSTGRES_USER}
-      - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+  # wesql:
+    # container_name: dropbucket_wesql
+    # image: apecloud/wesql-server
+    # environment:
+      # - MYSQL_DATABASE=${POSTGRES_DB}
+      # - MYSQL_ROOT_USER=${POSTGRES_USER}
+      # - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
 
       # - MYSQL_PORT=3306
       # - MYSQL_HOST=127.0.0.1
