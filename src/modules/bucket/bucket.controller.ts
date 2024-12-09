@@ -77,10 +77,7 @@ export class BucketController {
     }
 
     try {
-      console.log('Descargando key:', key);
       const fileBuffer = await this.bucketService.downloadObject(key);
-
-
       const filename = path.basename(key);
       // Puedes hacer más operaciones con el buffer
       // return new StreamableFile(fileBuffer);
@@ -105,8 +102,6 @@ export class BucketController {
   async downloadFile(
     @Query('key') key: string,
     @Res() res: Response) {
-
-    console.log('key', key);
     const fileBuffer = await this.bucketService.downloadFile(key);
     res.send(fileBuffer);
   }

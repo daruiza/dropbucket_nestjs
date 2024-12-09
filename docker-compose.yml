@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  wesql:
+    container_name: dropbucket_wesql
+    image: apecloud/wesql-server
+    environment:
+      - MYSQL_DATABASE=${POSTGRES_DB}
+      - MYSQL_ROOT_USER=${POSTGRES_USER}
+      - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+
+      # - MYSQL_PORT=3306
+      # - MYSQL_HOST=127.0.0.1
+
+      # - AWS_ACCESS_KEY_ID=${POSTGRES_PASSWORD}
+      # - AWS_SECRET_ACCESS_KEY=${POSTGRES_PASSWORD}
+      # - AWS_DEFAULT_REGION=${POSTGRES_PASSWORD}
+
+      # - WESQL_OBJECTSTORE_ACCESS_KEY=${POSTGRES_PASSWORD}
+      # - WESQL_OBJECTSTORE_SECRET_KEY=${POSTGRES_PASSWORD}
+
   postgres:
     container_name: dropbucket_postgres
     image: postgres:13.16
@@ -21,7 +39,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./:/app     
+      - ./:/app
     environment:
       - NODE_ENV=development
     command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
@@ -31,6 +49,3 @@ services:
 volumes:
   dropbucket_volume:
     external: true
-
-# wesql
-# docker pull apecloud/wesql-server
