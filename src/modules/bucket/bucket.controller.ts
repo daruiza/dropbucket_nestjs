@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe, StreamableFile, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import * as path from 'path';
+
 
 @ApiBearerAuth()
 @ApiTags('bucket')
@@ -59,14 +61,52 @@ export class BucketController {
     return await this.bucketService.uploadFile(file, prefix);
   }
 
-  @Get(':key')
+  @Get('url/:key')
   async getFile(@Param('key') key: string, @Res() res: Response) {
     const url = await this.bucketService.getFileUrl(key);
     return url;
   }
 
-  @Get('download/:key')
-  async downloadFile(@Param('key') key: string, @Res() res: Response) {
+  @Get('object')
+  async downloadObject(
+    @Query('key') key: string,
+  ) {
+    if (!key) {
+      // Manejar caso donde no se proporciona key
+      throw new BadRequestException('Se requiere un key de objeto');
+    }
+
+    try {
+      console.log('Descargando key:', key);
+      const fileBuffer = await this.bucketService.downloadObject(key);
+
+
+      const filename = path.basename(key);
+      // Puedes hacer más operaciones con el buffer
+      // return new StreamableFile(fileBuffer);
+      return new StreamableFile(fileBuffer, {
+        type: 'application/octet-stream', // Tipo genérico para archivos binarios
+        disposition: `attachment; filename="${filename}"` // Sugerir nombre de archivo
+      });
+    } catch (error) {
+      // Manejo de errores
+      console.error('Error en descarga de objeto:', error);
+
+      // Mapear diferentes tipos de errores
+      if (error.name === 'NoSuchKey') {
+        throw new NotFoundException('Objeto no encontrado en el bucket');
+      }
+      throw new InternalServerErrorException('Error al descargar el objeto');
+
+    }
+  }
+
+  @Get('download')
+  async downloadFile(
+    @Query('key') key: string,
+    @Res() res: Response) {
+
+    console.log('key', key);
     const fileBuffer = await this.bucketService.downloadFile(key);
     res.send(fileBuffer);
   }
@@ -92,6 +132,5 @@ export class BucketController {
     res.send(fileBuffer);
   }
 
-  // TODO, CREAR Y BORRR UNA CARPETA
 
 }

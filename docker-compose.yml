@@ -31,3 +31,6 @@ services:
 volumes:
   dropbucket_volume:
     external: true
+
+# wesql
+# docker pull apecloud/wesql-server

@@ -93,7 +93,6 @@ export class BucketService {
 
       // Ordenar resultados
       if (sort) {
-
         const compareFn = (a: any, b: any) => {
           if (sort.by === 'name') {
             const comparison = a.Name.localeCompare(b.Name);
@@ -250,7 +249,73 @@ export class BucketService {
     }
   }
 
+  /**
+   * Descarga un archivo desde un bucket de S3
+   * @param bucket Nombre del bucket de S3
+   * @param key Ruta completa del archivo, incluyendo prefijos (ej. /documents/archivo.png)
+   * @returns Promise con un buffer del archivo
+   */
+  async downloadObject(key: string): Promise<Buffer> {
+
+    if (!key) {
+      throw new Error('Key de objeto no proporcionado');
+    }
+
+    try {
+      // Comando para obtener el objeto desde S3
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key
+      });
+
+      // Ejecutar el comando y obtener la respuesta
+      const response = await this.s3Client.send(command);
+
+      // Convertir el stream a buffer
+      return new Promise((resolve, reject) => {
+        const chunks: Buffer[] = [];
+
+        // Manejar el stream de datos
+        (response.Body as Readable)
+          .on('data', (chunk) => chunks.push(chunk))
+          .on('error', (err) => reject(err))
+          .on('end', () => {
+            const fileBuffer = Buffer.concat(chunks);
+            if (fileBuffer.length === 0) {
+              reject(new Error('Archivo vacío'));
+            }
+            resolve(fileBuffer);
+          });
+      });
+    } catch (error) {
+      // Manejo de errores específicos
+      if (error.name === 'NoSuchKey') {
+        throw new Error(`El archivo con clave ${key} no existe en el bucket ${this.bucketName}`);
+      }
+      throw new Error(`Error al descargar el archivo: ${error.message}`);
+    }
+  }
+
+  /**
+   * Descarga un archivo desde S3 y lo guarda localmente
+   * @param bucket Nombre del bucket de S3
+   * @param key Ruta completa del archivo, incluyendo prefijos
+   * @param localPath Ruta local donde se guardará el archivo
+   */
+  async downloadAndSaveFile(key: string, localPath: string): Promise<void> {
+    try {
+      const fileBuffer = await this.downloadObject(key);
+      await require('fs').promises.writeFile(localPath, fileBuffer);
+    } catch (error) {
+      throw new Error(`Error al guardar el archivo localmente: ${error.message}`);
+    }
+  }
+
   async downloadFile(key: string): Promise<Buffer> {
+
+    if (!key) {
+      throw new NotFoundException('Key not found');
+    }
     const file = await this.getFile(key);
     const stream = file.Body as Readable;
 
@@ -269,6 +334,9 @@ export class BucketService {
   }
 
   async createFolder(folderPath: string): Promise<any> {
+
+    // todo: emite el siguiente error:  Are you using a Stream of unknown length as the Body of a PutObject request? Consider using Upload instead from @aws-sdk/lib-storage.
+
     // Asegúrate de que el `folderPath` termine con una barra "/"
     if (!folderPath.endsWith('/')) {
       folderPath += '/';
