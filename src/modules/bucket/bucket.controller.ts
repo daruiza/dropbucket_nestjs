@@ -61,8 +61,9 @@ export class BucketController {
     return await this.bucketService.uploadFile(file, prefix);
   }
 
-  @Get('url/:key')
-  async getFile(@Param('key') key: string, @Res() res: Response) {
+  @Get('url')
+  async getFile(
+    @Query('key') key: string) {
     const url = await this.bucketService.getFileUrl(key);
     return url;
   }
