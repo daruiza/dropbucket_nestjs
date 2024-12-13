@@ -176,9 +176,10 @@ export class BucketService {
     prefixarg: string | null = null
   ): Promise<any> {
 
+    const normalizedFileName = this.normalizeFileName(file.originalname);
     const prefix = prefixarg ? prefixarg.endsWith('/') ? prefixarg : `${prefixarg}/` : '';
-    const fileName = file.originalname.replace(/\.[^/.]+$/, ""); // nombre sin extención
-    let fileExt = file.originalname.split('.').pop(); // nombre sin extención
+    const fileName = normalizedFileName.replace(/\.[^/.]+$/, ""); // nombre sin extención
+    const fileExt = file.originalname.split('.').pop(); // nombre sin extención
 
     try {
 
@@ -212,6 +213,15 @@ export class BucketService {
         `Error al subir el archivo a S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  // Método para normalizar nombres de archivos
+  private normalizeFileName(fileName: string): string {
+    return fileName
+      .normalize('NFD') // Descompone los caracteres con acentos
+      .replace(/[\u0300-\u036f]/g, '') // Elimina los caracteres de combinación de acentos
+      .replace(/ñ/g, 'n')
+      .replace(/Ñ/g, 'N');
   }
 
   private getMimeType(fileName: string): string {
