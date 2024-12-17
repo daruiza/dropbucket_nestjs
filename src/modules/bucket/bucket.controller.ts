@@ -127,7 +127,7 @@ export class BucketController {
     res.send(fileBuffer);
   }
 
-  @Get('renameFile')
+  @Get('renamefile')
   async renameFile(
     @Query('oldKey') oldKey: string,
     @Query('newKey') newKey: string) {
@@ -135,7 +135,7 @@ export class BucketController {
     return url;
   }
 
-  @Get('renamePrefix')
+  @Get('renameprefix')
   async renamePrefix(
     @Query('oldPrefix') oldPrefix: string,
     @Query('newPrefix') newPrefix: string) {
