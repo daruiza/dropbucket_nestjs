@@ -442,28 +442,28 @@ export class BucketService {
 
   /**
    * Rename a file in S3 by copying to a new location and then deleting the original
-   * @param oldKey Original file path/key
-   * @param newKey New file path/key
+   * @param oldkey Original file path/key
+   * @param newkey New file path/key
    * @returns Promise resolving to the new file location
    */
-  async renameFile(oldKey: string, newKey: string): Promise<string> {
+  async renameFile(oldkey: string, newkey: string): Promise<string> {
     try {
       // Copy the object to the new location
       const copyCommand = new CopyObjectCommand({
         Bucket: this.bucketName,
-        CopySource: `${this.bucketName}/${oldKey}`,
-        Key: newKey
+        CopySource: `${this.bucketName}/${oldkey}`,
+        Key: newkey
       });
       await this.s3Client.send(copyCommand);
 
       // Delete the original object
       const deleteCommand = new DeleteObjectCommand({
         Bucket: this.bucketName,
-        Key: oldKey
+        Key: oldkey
       });
       await this.s3Client.send(deleteCommand);
 
-      return newKey;
+      return newkey;
     } catch (error) {
       // Handle potential errors during rename operation
       console.error('Error renaming S3 file:', error);
@@ -473,15 +473,15 @@ export class BucketService {
 
   /**
    * Rename a prefix (directory) in S3 by copying all objects and deleting originals
-   * @param oldPrefix Original prefix/directory
-   * @param newPrefix New prefix/directory
+   * @param oldprefix Original prefix/directory
+   * @param newprefix New prefix/directory
    * @returns Promise resolving when rename is complete
    */
-  async renamePrefix(oldPrefix: string, newPrefix: string): Promise<void> {
+  async renamePrefix(oldprefix: string, newprefix: string): Promise<void> {
     try {
       // Ensure prefixes have trailing slashes for correct matching
-      const normalizedOldPrefix = oldPrefix.endsWith('/') ? oldPrefix : `${oldPrefix}/`;
-      const normalizedNewPrefix = newPrefix.endsWith('/') ? newPrefix : `${newPrefix}/`;
+      const normalizedOldPrefix = oldprefix.endsWith('/') ? oldprefix : `${oldprefix}/`;
+      const normalizedNewPrefix = newprefix.endsWith('/') ? newprefix : `${newprefix}/`;
 
       // List objects with the old prefix
       const listObjectsCommand = new ListObjectsV2Command({

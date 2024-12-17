@@ -129,17 +129,17 @@ export class BucketController {
 
   @Get('renamefile')
   async renameFile(
-    @Query('oldKey') oldKey: string,
-    @Query('newKey') newKey: string) {
-    const url = await this.bucketService.renameFile(oldKey, newKey);
+    @Query('oldkey') oldkey: string,
+    @Query('newkey') newkey: string) {
+    const url = await this.bucketService.renameFile(oldkey, newkey);
     return url;
   }
 
   @Get('renameprefix')
   async renamePrefix(
-    @Query('oldPrefix') oldPrefix: string,
-    @Query('newPrefix') newPrefix: string) {
-    const url = await this.bucketService.renamePrefix(oldPrefix, newPrefix);
+    @Query('oldprefix') oldprefix: string,
+    @Query('newprefix') newprefix: string) {
+    const url = await this.bucketService.renamePrefix(oldprefix, newprefix);
     return url;
   }
 
