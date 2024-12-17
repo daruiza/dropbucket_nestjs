@@ -128,5 +128,20 @@ export class BucketController {
     res.send(fileBuffer);
   }
 
+  @Get('renameFile')
+  async renameFile(
+    @Query('oldKey') oldKey: string,
+    @Query('newKey') newKey: string) {
+    const url = await this.bucketService.renameFile(oldKey, newKey);
+    return url;
+  }
+
+  @Get('renamePrefix')
+  async renamePrefix(
+    @Query('oldPrefix') oldPrefix: string,
+    @Query('newPrefix') newPrefix: string) {
+    const url = await this.bucketService.renamePrefix(oldPrefix, newPrefix);
+    return url;
+  }
 
 }

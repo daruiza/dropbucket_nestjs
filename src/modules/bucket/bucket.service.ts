@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -437,6 +437,84 @@ export class BucketService {
     } catch (error) {
       console.error('Error al eliminar la carpeta en S3:', error);
       throw new Error('No se pudo eliminar la carpeta en S3');
+    }
+  }
+
+  /**
+   * Rename a file in S3 by copying to a new location and then deleting the original
+   * @param oldKey Original file path/key
+   * @param newKey New file path/key
+   * @returns Promise resolving to the new file location
+   */
+  async renameFile(oldKey: string, newKey: string): Promise<string> {
+    try {
+      // Copy the object to the new location
+      const copyCommand = new CopyObjectCommand({
+        Bucket: this.bucketName,
+        CopySource: `${this.bucketName}/${oldKey}`,
+        Key: newKey
+      });
+      await this.s3Client.send(copyCommand);
+
+      // Delete the original object
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: oldKey
+      });
+      await this.s3Client.send(deleteCommand);
+
+      return newKey;
+    } catch (error) {
+      // Handle potential errors during rename operation
+      console.error('Error renaming S3 file:', error);
+      throw new Error(`Failed to rename file: ${error.message}`);
+    }
+  }
+
+  /**
+   * Rename a prefix (directory) in S3 by copying all objects and deleting originals
+   * @param oldPrefix Original prefix/directory
+   * @param newPrefix New prefix/directory
+   * @returns Promise resolving when rename is complete
+   */
+  async renamePrefix(oldPrefix: string, newPrefix: string): Promise<void> {
+    try {
+      // Ensure prefixes have trailing slashes for correct matching
+      const normalizedOldPrefix = oldPrefix.endsWith('/') ? oldPrefix : `${oldPrefix}/`;
+      const normalizedNewPrefix = newPrefix.endsWith('/') ? newPrefix : `${newPrefix}/`;
+
+      // List objects with the old prefix
+      const listObjectsCommand = new ListObjectsV2Command({
+        Bucket: this.bucketName,
+        Prefix: normalizedOldPrefix
+      });
+      const listedObjects = await this.s3Client.send(listObjectsCommand);
+
+      // Process each object
+      if (listedObjects.Contents) {
+        for (const obj of listedObjects.Contents) {
+          // Calculate new key by replacing the old prefix with new prefix
+          const newKey = obj.Key.replace(normalizedOldPrefix, normalizedNewPrefix);
+
+          // Copy object
+          const copyCommand = new CopyObjectCommand({
+            Bucket: this.bucketName,
+            CopySource: `${this.bucketName}/${obj.Key}`,
+            Key: newKey
+          });
+          await this.s3Client.send(copyCommand);
+
+          // Delete original object
+          const deleteCommand = new DeleteObjectCommand({
+            Bucket: this.bucketName,
+            Key: obj.Key
+          });
+          await this.s3Client.send(deleteCommand);
+        }
+      }
+    } catch (error) {
+      console.error('Error renaming S3 prefix:', error);
+      throw new Error(`Failed to rename prefix: ${error.message}`);
     }
   }
 
