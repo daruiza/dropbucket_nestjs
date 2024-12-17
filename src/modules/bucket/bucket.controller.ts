@@ -119,7 +119,6 @@ export class BucketController {
     return await this.bucketService.deleteFolder(key);
   }
 
-
   @Delete()
   async deleteFile(
     @Query('key') key: string,
