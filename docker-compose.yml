@@ -2,22 +2,43 @@ version: '3.8'
 
 services:
   # wesql:
-    # container_name: dropbucket_wesql
-    # image: apecloud/wesql-server
-    # environment:
-      # - MYSQL_DATABASE=${POSTGRES_DB}
-      # - MYSQL_ROOT_USER=${POSTGRES_USER}
-      # - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+  #   container_name: dropbucket_wesql
+  #   image: apecloud/wesql-server:8.0.35-0.1.0_beta3.38
+  #   environment:
+  #     # Configuración básica de la base de datos
+  #     # - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+  #     # - MYSQL_DATABASE=${POSTGRES_DB}
+  #     # - MYSQL_USER=${POSTGRES_USER}
+  #     # - MYSQL_PASSWORD=${POSTGRES_PASSWORD}
+  #     - MYSQL_DATABASE=${POSTGRES_DB}
+  #     - MYSQL_USER=${POSTGRES_USER}
+  #     - MYSQL_PASSWORD=${POSTGRES_PASSWORD}
+  #     - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+  #     - MYSQL_ROOT_HOST=%
 
-      # - MYSQL_PORT=3306
-      # - MYSQL_HOST=127.0.0.1
 
-      # - AWS_ACCESS_KEY_ID=${POSTGRES_PASSWORD}
-      # - AWS_SECRET_ACCESS_KEY=${POSTGRES_PASSWORD}
-      # - AWS_DEFAULT_REGION=${POSTGRES_PASSWORD}
-
-      # - WESQL_OBJECTSTORE_ACCESS_KEY=${POSTGRES_PASSWORD}
-      # - WESQL_OBJECTSTORE_SECRET_KEY=${POSTGRES_PASSWORD}
+  #     # Configuración de S3
+  #     # - AWS_ACCESS_KEY_ID=${WESQL_ACCESS_KEY}
+  #     # - AWS_SECRET_ACCESS_KEY=${WESQL_SECRET_KEY}
+  #     # - S3_BUCKET_NAME=${WESQL_BUCKET}
+  #     # - S3_ENDPOINT=s3.us-east-1.amazonaws.com
+  #     # - S3_REGION=${AWS_REGION}
+  #     # - S3_BACKUP_PATH=/backups
+  #     # - S3_STORAGE_CLASS=STANDARD
+  #     - WESQL_OBJECTSTORE_ACCESS_KEY=${WESQL_ACCESS_KEY}
+  #     - WESQL_OBJECTSTORE_SECRET_KEY=${WESQL_SECRET_KEY}
+  #     - WESQL_OBJECTSTORE_BUCKET=${WESQL_BUCKET}
+  #     - WESQL_OBJECTSTORE_REGION=${AWS_REGION}
+  #     - WESQL_OBJECTSTORE_ENDPOINT=s3.us-east-1.amazonaws.com
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - wesql_volume:/var/lib/mysql
+  #   restart: unless-stopped
+  #   command:
+  #     - --character-set-server=utf8mb4
+  #     - --collation-server=utf8mb4_unicode_ci
+  #     - --plugin-load-add=s3_storage_engine.so
 
   postgres:
     container_name: dropbucket_postgres
@@ -48,4 +69,6 @@ services:
 
 volumes:
   dropbucket_volume:
+    external: true
+  wesql_volume:
     external: true

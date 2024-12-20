@@ -5,6 +5,7 @@ import { SingupAuthDto } from './dto/singup-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { REQUEST } from '@nestjs/core';
 import { User } from '../user/entities/user.entity';
+import e from 'express';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +44,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = user;
+    const payload = {
+      id: user.id,
+      rolId: user.rolId,
+      prefix: user.prefix,
+      name: user.name,
+      email: user.email,
+    };
 
     return {
       user,
