@@ -34,13 +34,35 @@ export class UserService {
   }
 
   async findAll(): Promise<User[] | undefined> {
-    return this.prisma.user.findMany()
+    return this.prisma.user.findMany({
+      include: {
+        rol: {
+          include: {
+            optionrols: {
+              include: {
+                option: true
+              }
+            }
+          }
+        }
+      }
+    })
   }
 
   async findOne(id: number): Promise<User | undefined> {
     const user = await this.prisma.user.findUnique({
       where: { id: id },
-      include: { rol: true }
+      include: {
+        rol: {
+          include: {
+            optionrols: {
+              include: {
+                option: true
+              }
+            }
+          }
+        }
+      }
     });
 
     if (!user) {
@@ -50,9 +72,20 @@ export class UserService {
   }
 
   async findOneByName(name: string): Promise<User | undefined> {
-    const user = await this.prisma.user.findFirst({ 
+    const user = await this.prisma.user.findFirst({
       where: { name: name },
-      include: { rol: true } });
+      include: {
+        rol: {
+          include: {
+            optionrols: {
+              include: {
+                option: true
+              }
+            }
+          }
+        }
+      }
+    });
     if (!user) {
       throw new NotFoundException(`User with Name: ${name} not found`);
     }
@@ -60,10 +93,20 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<User | any> {
-    const user = await this.prisma.user.findFirst({ 
+    const user = await this.prisma.user.findFirst({
       where: { email: email },
-      include: { rol: true }
-     });
+      include: {
+        rol: {
+          include: {
+            optionrols: {
+              include: {
+                option: true
+              }
+            }
+          }
+        }
+      }
+    });
     if (!user) {
       throw new NotFoundException(`User with Email: ${email} not found`);
     }
