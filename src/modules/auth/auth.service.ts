@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { UserService } from '../user/user.service';
 import { SingupAuthDto } from './dto/singup-auth.dto';
@@ -65,7 +65,18 @@ export class AuthService {
   }
 
   logout() {
-    return `This action returns all auth`;
+    try {
+      // Aquí podrías agregar lógica adicional como:
+      // - Agregar el token a una lista negra
+      // - Limpiar sesiones
+
+      return {
+        message: 'Logout successful',
+        status: true
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Error during logout');
+    }
   }
 
 

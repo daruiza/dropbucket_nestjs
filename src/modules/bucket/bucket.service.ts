@@ -156,6 +156,7 @@ export class BucketService {
     });
 
     try {
+      if(!fileKey) return false;
       await this.s3Client.send(command);
       return true; // El archivo existe
     } catch (error) {

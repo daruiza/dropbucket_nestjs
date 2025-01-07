@@ -27,11 +27,11 @@ export class BucketController {
   }
 
 
-  @Get('exists/:fileKey')
+  @Get('exists')
   async checkFileExists(
-    @Param('fileKey') fileKey: string): Promise<{ exists: boolean }> {
+    @Query('Key') Key: string): Promise<{ exists: boolean }> {
     try {
-      const exists = await this.bucketService.checkFileExists(fileKey);
+      const exists = await this.bucketService.checkFileExists(Key);
       return { exists };
     } catch (error) {
       throw new HttpException(
