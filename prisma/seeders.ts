@@ -8,7 +8,7 @@ async function main() {
     // Creamos primero los roles
     const superRole = await prisma.rol.create({
       data: {
-        name: 'super',
+        name: 'superadmin',
         description: 'Super administrador con acceso total al sistema',
       },
     });

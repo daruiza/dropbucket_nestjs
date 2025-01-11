@@ -33,8 +33,10 @@ export class UserService {
     })
   }
 
-  async findAll(): Promise<User[] | undefined> {
+  async findAll(skip: number = 0, take: number = 45): Promise<User[] | undefined> {
     return this.prisma.user.findMany({
+      skip: skip,
+      take: take,
       include: {
         rol: {
           include: {
