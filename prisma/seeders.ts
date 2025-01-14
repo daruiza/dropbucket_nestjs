@@ -16,7 +16,14 @@ async function main() {
     const adminRole = await prisma.rol.create({
       data: {
         name: 'admin',
-        description: 'Administrador con acceso limitado al sistema',
+        description: 'Administrador con acceso limitado sistema',
+      },
+    });
+
+    const agentRole = await prisma.rol.create({
+      data: {
+        name: 'agent',
+        description: 'Agente con acceso limitado a un prefix',
       },
     });
 
