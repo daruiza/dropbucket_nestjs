@@ -121,7 +121,7 @@ export class UserService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    if (updateUserDto.password) {
+    if (updateUserDto.password && updateUserDto.password != null && updateUserDto.password != '') {
       // Encripta la nueva contraseña si se proporciona
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }

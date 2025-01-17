@@ -5,15 +5,17 @@ import { IsEmail, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Ma
 export class CreateUserDto {
     // @IsNumber()
     // id: number;
-   
+
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
     @MaxLength(16)
-    @Matches(/^[a-zA-Z0-9]+$/)
+    @Matches(/^[a-zA-Z0-9]+$/, {
+        message: 'El nombre debe ser un alfanumerico'
+    })
     name: string;
 
-    @IsString()   
+    @IsString()
     @IsOptional()
     names: string;
 
@@ -28,8 +30,8 @@ export class CreateUserDto {
 
     @IsString()
     @IsNotEmpty()
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#])[A-Za-z\d@$!%*?&_#]{6,}$/,{
-        message: 'El Password debe incluir 8 caracteres, una minuscula, una mayuscula, un número y un caracter especial'
+    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#])[A-Za-z\d@$!%*?&_#]{6,}$/, {
+        message: 'El Password debe incluir 6 caracteres, una minuscula, una mayuscula, un número y un caracter especial'
     })
     password: string;
 
@@ -37,7 +39,7 @@ export class CreateUserDto {
     @IsNumberString()
     @Matches(/^(?!.*(\d)\1)\d{4}$/, {
         message: 'El PIN debe ser un número de 4 dígitos y no puede contener dígitos repetidos consecutivamente.',
-      })
+    })
     pin?: string;
 
     @IsOptional()
