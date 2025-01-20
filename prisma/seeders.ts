@@ -51,6 +51,15 @@ async function main() {
     });
 
     // puede editar el nombre de las carpetas
+    const folderCreate = await prisma.option.create({
+      data:
+      {
+        name: 'folder_create',
+        description: 'Crear carpetas',
+      },
+    });
+
+    // puede editar el nombre de las carpetas
     const folderEdit = await prisma.option.create({
       data:
       {
@@ -118,6 +127,10 @@ async function main() {
         {
           rolId: superRole.id,
           optionId: usersOption.id
+        },        
+        {
+          rolId: superRole.id,
+          optionId: folderCreate.id
         },
         {
           rolId: superRole.id,
@@ -155,6 +168,10 @@ async function main() {
         },
         {
           rolId: adminRole.id,
+          optionId: folderCreate.id
+        },
+        {
+          rolId: adminRole.id,
           optionId: folderEdit.id
         },
         {
@@ -183,6 +200,10 @@ async function main() {
         },
 
 
+        {
+          rolId: clientRole.id,
+          optionId: folderCreate.id
+        },
         {
           rolId: clientRole.id,
           optionId: folderEdit.id
@@ -233,9 +254,7 @@ async function main() {
         {
           rolId: viwerRole.id,
           optionId: fileDownload.id
-        },      
-
-        
+        },
 
       ]
 
