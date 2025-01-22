@@ -43,6 +43,21 @@ export class BucketController {
     }
   }
 
+  @Get('prefix-exists')
+  async checkPrefixExists(
+    @Query('prefix') prefix: string,
+  ): Promise<{ exist: boolean }> {
+    try {
+      const exist = await this.bucketService.checkPrefixExists(prefix);
+      return { exist };
+    } catch (error) {
+      throw new HttpException(
+        'Error al verificar la existencia del prefix',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(

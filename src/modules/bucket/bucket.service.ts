@@ -171,6 +171,25 @@ export class BucketService {
     }
   }
 
+  async checkPrefixExists(prefix: string): Promise<boolean> {
+    const command = new ListObjectsV2Command({
+      Bucket: this.bucketName,
+      Prefix: prefix,
+      MaxKeys: 1,
+    });
+
+    try {
+      if (!prefix) return false;
+      const response = await this.s3Client.send(command);
+      return Boolean(response.Contents?.length);
+    } catch (error) {
+      throw new HttpException(
+        `Error al consultar el prefix: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async uploadFile(
     file: Express.Multer.File,
     prefixarg: string | null = null
@@ -397,7 +416,7 @@ export class BucketService {
         `Error al obtener el archivo de S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }  
+  }
 
   async createFolder(folderPath: string): Promise<any> {
 
