@@ -19,7 +19,7 @@ async function main() {
         description: 'Administrador con acceso limitado sistema',
       },
     });
-    
+
     const clientRole = await prisma.rol.create({
       data: {
         name: 'cliente',
@@ -77,6 +77,15 @@ async function main() {
       },
     });
 
+    // puede solicitar subidad de archivos
+    const folderRequestUpload = await prisma.option.create({
+      data:
+      {
+        name: 'folder_request_upload',
+        description: 'Solicitud de archivos',
+      },
+    });
+
     // puede editar el nombre de los archivos
     const fileEdit = await prisma.option.create({
       data:
@@ -127,7 +136,7 @@ async function main() {
         {
           rolId: superRole.id,
           optionId: usersOption.id
-        },        
+        },
         {
           rolId: superRole.id,
           optionId: folderCreate.id
@@ -139,6 +148,10 @@ async function main() {
         {
           rolId: superRole.id,
           optionId: folderDelete.id
+        },
+        {
+          rolId: superRole.id,
+          optionId: folderRequestUpload.id
         },
         {
           rolId: superRole.id,
@@ -180,6 +193,10 @@ async function main() {
         },
         {
           rolId: adminRole.id,
+          optionId: folderRequestUpload.id
+        },
+        {
+          rolId: adminRole.id,
           optionId: fileEdit.id
         },
         {
@@ -193,7 +210,7 @@ async function main() {
         {
           rolId: adminRole.id,
           optionId: fileDownload.id
-        },        
+        },
         {
           rolId: adminRole.id,
           optionId: fileUpload.id
@@ -214,6 +231,10 @@ async function main() {
         },
         {
           rolId: clientRole.id,
+          optionId: folderRequestUpload.id
+        },
+        {
+          rolId: clientRole.id,
           optionId: fileEdit.id
         },
         {
@@ -246,7 +267,7 @@ async function main() {
           optionId: fileUpload.id
         },
 
-       
+
         {
           rolId: viwerRole.id,
           optionId: fileShare.id
