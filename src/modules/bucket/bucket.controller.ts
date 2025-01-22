@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe, StreamableFile, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe, StreamableFile, BadRequestException, NotFoundException, InternalServerErrorException, UploadedFiles } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import * as path from 'path';
+import * as archiver from 'archiver';
+
 
 
 @ApiBearerAuth()
@@ -61,6 +63,27 @@ export class BucketController {
     return await this.bucketService.uploadFile(file, prefix);
   }
 
+  @Post('upload-multiple')
+  @UseInterceptors(FilesInterceptor('files', 10))
+  async uploadMultipleFiles(
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
+          new MaxFileSizeValidator({
+            maxSize: 10485760,
+            message: 'File is too large. Max file size is 10MB',
+          }),
+        ],
+        fileIsRequired: true,
+      })
+    ) files: Express.Multer.File[],
+    @Body('prefix') prefix?: string,
+  ): Promise<any> {
+    return await this.bucketService.uploadMultipleFiles(files, prefix);
+  }
+
+
   @Get('url')
   async getFile(
     @Query('key') key: string) {
@@ -105,6 +128,25 @@ export class BucketController {
     @Res() res: Response) {
     const fileBuffer = await this.bucketService.downloadFile(key);
     res.send(fileBuffer);
+  }
+
+  @Get('download-multiple')
+  async downloadMultipleFiles(
+    @Query('keys') keys: string,
+    @Res() res: Response,
+  ) {
+    const fileKeys = keys.split(',');
+    const archive = archiver('zip');
+
+    res.attachment('files.zip');
+    archive.pipe(res);
+
+    for (const key of fileKeys) {
+      const fileBuffer = await this.bucketService.downloadFile(key);
+      archive.append(fileBuffer, { name: key });
+    }
+
+    await archive.finalize();
   }
 
   @Post('create/prefix')

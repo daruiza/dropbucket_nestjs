@@ -156,7 +156,7 @@ export class BucketService {
     });
 
     try {
-      if(!fileKey) return false;
+      if (!fileKey) return false;
       await this.s3Client.send(command);
       return true; // El archivo existe
     } catch (error) {
@@ -171,7 +171,6 @@ export class BucketService {
     }
   }
 
-  // TODO falta el detalle del folder,name,...
   async uploadFile(
     file: Express.Multer.File,
     prefixarg: string | null = null
@@ -214,6 +213,62 @@ export class BucketService {
         `Error al subir el archivo a S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async uploadMultipleFiles(
+    files: Express.Multer.File[],
+    prefixarg: string | null = null
+  ): Promise<any> {
+    const uploadResults = [];
+    const prefix = prefixarg ? prefixarg.endsWith('/') ? prefixarg : `${prefixarg}/` : '';
+
+    for (const file of files) {
+      try {
+        const normalizedFileName = this.normalizeFileName(file.originalname);
+        const fileName = normalizedFileName.replace(/\.[^/.]+$/, "");
+        const fileExt = file.originalname.split('.').pop();
+
+        const mime = file.mimetype === 'application/octet-stream'
+          ? this.getMimeType(file.originalname)
+          : file.mimetype;
+
+        const { files: existingFiles } = await this.listObjects(`${prefix}${fileName}`);
+        const key = `${prefix}${fileName}${existingFiles ? existingFiles.length ? '_' + (+existingFiles.length + 1) : '' : ''}.${fileExt}`;
+
+        const params = {
+          Bucket: this.bucketName,
+          Key: key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+          Metadata: {
+            originalName: file.originalname,
+          },
+        };
+
+        await this.s3Client.send(new PutObjectCommand(params));
+
+        uploadResults.push({
+          key,
+          url: `https://${this.bucketName}.s3.amazonaws.com/${key}`,
+          upload: true,
+          exist: existingFiles?.length || 0,
+          originalName: file.originalname
+        });
+      } catch (error) {
+        uploadResults.push({
+          originalName: file.originalname,
+          upload: false,
+          error: error.message
+        });
+      }
+    }
+
+    return {
+      totalFiles: files.length,
+      successfulUploads: uploadResults.filter(r => r.upload).length,
+      failedUploads: uploadResults.filter(r => !r.upload).length,
+      results: uploadResults
+    };
   }
 
   // Método para normalizar nombres de archivos
@@ -342,7 +397,7 @@ export class BucketService {
         `Error al obtener el archivo de S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
+  }  
 
   async createFolder(folderPath: string): Promise<any> {
 
