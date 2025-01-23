@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Injectable, InternalServerErrorException, No
 import { CopyObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
+import slugify from 'slugify';
+
 
 @Injectable()
 export class BucketService {
@@ -292,11 +294,18 @@ export class BucketService {
 
   // Método para normalizar nombres de archivos
   private normalizeFileName(fileName: string): string {
-    return fileName
-      .normalize('NFD') // Descompone los caracteres con acentos
-      .replace(/[\u0300-\u036f]/g, '') // Elimina los caracteres de combinación de acentos
-      .replace(/ñ/g, 'n')
-      .replace(/Ñ/g, 'N');
+    // return fileName
+    //   .normalize('NFD') // Descompone los caracteres con acentos
+    //   .replace(/[\u0300-\u036f]/g, '') // Elimina los caracteres de combinación de acentos
+    //   .replace(/ñ/g, 'n')
+    //   .replace(/Ñ/g, 'N');
+
+    return slugify(fileName, {
+      replacement: '_',   // Reemplaza caracteres especiales con guión bajo
+      remove: /[*+~.()'"!:@]/g, // Elimina caracteres especiales adicionales
+      lower: true,        // Convierte a minúsculas
+      strict: true,       // Elimina acentos
+    });
   }
 
   private getMimeType(fileName: string): string {
