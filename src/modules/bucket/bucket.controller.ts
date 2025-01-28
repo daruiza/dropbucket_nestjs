@@ -6,8 +6,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import * as path from 'path';
 import * as archiver from 'archiver';
-
-
+import { Express } from 'express';
 
 @ApiBearerAuth()
 @ApiTags('bucket')

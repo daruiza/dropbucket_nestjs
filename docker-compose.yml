@@ -95,8 +95,8 @@ services:
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
       - ./prisma/seeders.ts:/app/prisma/seeders.ts
       # Exclude node_modules and prisma generated files
-      - /app/node_modules
-      - /app/prisma/generated
+      # - /app/node_modules
+      # - /app/prisma/generated
     environment:
       - NODE_ENV=development
     depends_on:

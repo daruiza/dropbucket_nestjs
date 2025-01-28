@@ -11,6 +11,8 @@ RUN npm install -g @nestjs/cli
 COPY prisma/ ./prisma/
 COPY . .
 RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
+# RUN npm run test
+EXPOSE 3000
 CMD ["npm", "run", "start:devtsnd"]
 
 # Production stage
@@ -21,15 +23,19 @@ RUN npm install -g @nestjs/cli
 COPY prisma/ ./prisma/
 COPY . .
 RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
+# Eliminar archivos no necesarios
+# RUN npm run test
+RUN rm -rf test
 RUN npm run build
+EXPOSE 3000
 CMD ["npm", "run", "start:prod"]
 
 # Use build argument to select stage
-FROM ${BUILD_MODE:-development}
+# FROM ${BUILD_MODE:-development}
 
 
 # For development
-# docker build --target development -t app:dev .
+# docker build --target development -t dropbucker_nest:dev .
 
 # For production
-# docker build --target production -t app:prod .
+# docker build --target production -t dropbucker_nest:prod .

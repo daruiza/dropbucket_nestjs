@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CopyObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
-import { v4 as uuidv4 } from 'uuid';
 import slugify from 'slugify';
-
+import { Express } from 'express';
 
 @Injectable()
 export class BucketService {
