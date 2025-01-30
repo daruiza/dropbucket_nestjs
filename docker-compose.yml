@@ -90,6 +90,7 @@ services:
     ports:
       - 3000:3000
     volumes:
+      - ./:/app
       - ./src:/app/src
       - ./test:/app/test
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
