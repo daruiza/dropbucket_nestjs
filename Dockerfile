@@ -26,8 +26,8 @@ RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 # RUN npm run test
 RUN rm -rf test
 RUN npm run build
-# CMD ["npm", "run", "start:prod"]
-CMD ["node", "dist/src/main.js"]
+CMD ["npm", "run", "start:prod"]
+# CMD ["node", "dist/src/main.js"]
 
 # Use build argument to select stage
 # FROM ${BUILD_MODE:-development}
