@@ -80,48 +80,17 @@ services:
   #     external: true
 
   # CON DOCKERFILE
-  #   postgres:
-  #     container_name: dropbucket_postgres
-  #     image: postgres:13.16
-  #     environment:
-  #       - POSTGRES_USER=${POSTGRES_USER}
-  #       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #       - POSTGRES_DB=${POSTGRES_DB}
-  #     ports:
-  #       - 5432:5432
-  #     volumes:
-  #       - dropbucket_volume:/var/lib/postgresql/data
-  #   nestjs:
-  #     container_name: dropbucket_nestjs
-  #     build:
-  #       context: .
-  #       dockerfile: Dockerfile
-  #       target: development
-  #     restart: unless-stopped
-  #     ports:
-  #       - 3000:3000
-  #     volumes:
-  #       - ./:/app
-  #       - ./src:/app/src
-  #       - ./test:/app/test
-  #       - ./prisma/schema.prisma:/app/prisma/schema.prisma
-  #       - ./prisma/seeders.ts:/app/prisma/seeders.ts
-  #       # Exclude node_modules and prisma generated files
-  #       # - /app/node_modules
-  #       # - /app/prisma/generated
-  #     environment:
-  #       - NODE_ENV=development
-  #     depends_on:
-  #       - postgres
-
-  # volumes:
-  #   dropbucket_volume:
-  #     external: true
-  #   wesql_volume:
-  #     external: true
-
-
-  # Con base de datos en aws
+  postgres:
+    container_name: dropbucket_postgres
+    image: postgres:13.16
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    volumes:
+      - dropbucket_volume:/var/lib/postgresql/data
   nestjs:
     container_name: dropbucket_nestjs
     build:
@@ -142,3 +111,34 @@ services:
       # - /app/prisma/generated
     environment:
       - NODE_ENV=development
+    depends_on:
+      - postgres
+
+volumes:
+  dropbucket_volume:
+    external: true
+  #   wesql_volume:
+  #     external: true
+
+
+  # Con base de datos en aws
+  # nestjs:
+  #   container_name: dropbucket_nestjs
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   restart: unless-stopped
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./:/app
+  #     - ./src:/app/src
+  #     - ./test:/app/test
+  #     - ./prisma/schema.prisma:/app/prisma/schema.prisma
+  #     - ./prisma/seeders.ts:/app/prisma/seeders.ts
+  #     # Exclude node_modules and prisma generated files
+  #     # - /app/node_modules
+  #     # - /app/prisma/generated
+  #   environment:
+  #     - NODE_ENV=development

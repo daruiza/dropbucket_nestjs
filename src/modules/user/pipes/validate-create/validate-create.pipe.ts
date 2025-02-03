@@ -4,7 +4,6 @@ import { CreateUserDto } from '../../dto/create-user.dto';
 @Injectable()
 export class ValidateCreatePipe implements PipeTransform {
   transform(value: CreateUserDto, metadata: ArgumentMetadata) {
-    console.log('ValidateCreatePipe', value);    
     // const rolId = parseInt(''+value.rolId)
     // if(isNaN(rolId)){
     //   throw new HttpException('Rol id must be a number', HttpStatus.BAD_REQUEST);
