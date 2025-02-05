@@ -80,6 +80,7 @@ services:
   #     external: true
 
   # CON DOCKERFILE
+
   postgres:
     container_name: dropbucket_postgres
     image: postgres:13.16
@@ -142,3 +143,23 @@ volumes:
   #     # - /app/prisma/generated
   #   environment:
   #     - NODE_ENV=development
+
+
+
+
+# comandos directos
+
+# docker volume create --driver local \
+#     --opt type=none \
+#     --opt device=/mnt/efs/fs1 \
+#     --opt o=bind \
+#     dropbucket-asistir-postgres
+
+#  docker run -d \
+#   --name postgres-dropbucket \
+#   -v dropbucket-asistir-postgres:/var/lib/postgresql/data \
+#   -e POSTGRES_USER=admin \
+#   -e POSTGRES_PASSWORD=12345 \
+#   -e POSTGRES_DB=dropbucket \
+#   -p 5432:5432 \
+#   postgres:13.16

@@ -1,0 +1,28 @@
+services:
+  postgres:
+    container_name: dropbucket_postgres
+    image: postgres:13.16
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=dropbucket
+    ports:
+      - 5432:5432
+    volumes:
+      - dropbucket-asistir-postgres:/var/lib/postgresql/data
+
+  nestjs:
+    container_name: dropbucket_nestjs
+    image: daruiza/dropbucket_nestjs:aws
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+  flutter:
+    container_name: dropbucket_flutter
+    image: daruiza/dropbucket_flutter:aws
+    ports:
+      - 8080:8080
+volumes:
+  dropbucket-asistir-postgres:
+    external: true

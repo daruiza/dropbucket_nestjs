@@ -38,3 +38,7 @@ CMD ["npm", "run", "start:prod"]
 
 # For production
 # docker build --target production -t dropbucket_nestjs:prod .
+
+# Tag
+# docker image tag dropbucket_nestjs:prod dropbucket_nestjs:aws
+# docker push daruiza/dropbucket_nestjs:aws
