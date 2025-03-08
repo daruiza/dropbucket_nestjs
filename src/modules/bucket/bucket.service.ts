@@ -531,10 +531,12 @@ export class BucketService {
    */
   async renameFile(oldkey: string, newkey: string): Promise<string> {
     try {
+      // Codificar solo la parte del nombre del archivo (oldkey) para el CopySource
+      const encodedOldKey = this.encodeS3Key(oldkey);
       // Copy the object to the new location
       const copyCommand = new CopyObjectCommand({
         Bucket: this.bucketName,
-        CopySource: `${this.bucketName}/${oldkey}`,
+        CopySource: `${this.bucketName}/${encodedOldKey}`,
         Key: newkey
       });
       await this.s3Client.send(copyCommand);
@@ -548,10 +550,31 @@ export class BucketService {
 
       return newkey;
     } catch (error) {
-      // Handle potential errors during rename operation
-      console.error('Error renaming S3 file:', error);
-      throw new Error(`Failed to rename file: ${error.message}`);
+      if (error.name === 'NoSuchKey') {
+        throw new Error(`El archivo original "${oldkey}" no existe en el bucket`);
+      } else if (error.name === 'InvalidRequest') {
+        throw new Error(`Solicitud inválida al intentar renombrar. Verifica los nombres de archivos: ${error.message}`);
+      } else {
+        console.error('Error al renombrar archivo en S3:', error);
+        throw new Error(`Error al renombrar archivo de "${oldkey}" a "${newkey}": ${error.message}`);
+      }
     }
+  }
+
+  encodeS3Key(key: string): string {
+    // Primero decodifica para evitar doble codificación si ya estuviera codificada
+    try {
+      key = decodeURIComponent(key);
+    } catch (e) {
+      // Si hay error al decodificar, probablemente no estaba codificada
+    }
+    // Luego codifica correctamente
+    return this.encodeS3UriPath(key);
+  }
+
+  encodeS3UriPath(key: string): string {
+    // Divide la ruta por / y codifica cada segmento individualmente
+    return key.split('/').map(encodeURIComponent).join('/');
   }
 
   /**
