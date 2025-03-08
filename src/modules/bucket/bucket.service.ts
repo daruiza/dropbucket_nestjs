@@ -3,6 +3,7 @@ import { CopyObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObject
 import { Readable } from 'stream';
 import slugify from 'slugify';
 import { Express } from 'express';
+import { parse } from 'path';
 
 @Injectable()
 export class BucketService {
@@ -196,8 +197,8 @@ export class BucketService {
     prefixarg: string | null = null
   ): Promise<any> {
 
-    const normalizedFileName = this.normalizeFileName(file.originalname);
     const prefix = prefixarg ? prefixarg.endsWith('/') ? prefixarg : `${prefixarg}/` : '';
+    const normalizedFileName = this.normalizeFileName(parse(file.originalname).name);
     const fileName = normalizedFileName.replace(/\.[^/.]+$/, ""); // nombre sin extención
     const fileExt = file.originalname.split('.').pop(); // nombre sin extención
 
@@ -244,7 +245,7 @@ export class BucketService {
 
     for (const file of files) {
       try {
-        const normalizedFileName = this.normalizeFileName(file.originalname);
+        const normalizedFileName = this.normalizeFileName(parse(file.originalname).name);
         const fileName = normalizedFileName.replace(/\.[^/.]+$/, "");
         const fileExt = file.originalname.split('.').pop();
 
@@ -301,8 +302,8 @@ export class BucketService {
 
     return slugify(fileName, {
       replacement: '_',   // Reemplaza caracteres especiales con guión bajo
-      remove: /[*+~.()'"!:@]/g, // Elimina caracteres especiales adicionales
-      lower: true,        // Convierte a minúsculas
+      remove: /[*+~()'"!:@]/g, // Elimina caracteres especiales adicionales
+      // lower: true,        // Convierte a minúsculas
       strict: true,       // Elimina acentos
     });
   }
@@ -602,10 +603,11 @@ export class BucketService {
           // Calculate new key by replacing the old prefix with new prefix
           const newKey = obj.Key.replace(normalizedOldPrefix, normalizedNewPrefix);
 
+          const encodedKey = this.encodeS3Key(obj.Key);
           // Copy object
           const copyCommand = new CopyObjectCommand({
             Bucket: this.bucketName,
-            CopySource: `${this.bucketName}/${obj.Key}`,
+            CopySource: `${this.bucketName}/${encodedKey}`,
             Key: newKey
           });
           await this.s3Client.send(copyCommand);
