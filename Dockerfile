@@ -1,6 +1,6 @@
 # Base stage for shared configurations
 FROM node:22.7.0-alpine3.20 AS base
-EXPOSE 3000
+EXPOSE 3031
 WORKDIR /app
 RUN apk add --no-cache openssl ca-certificates
 COPY package*.json ./

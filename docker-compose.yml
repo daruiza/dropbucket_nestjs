@@ -88,10 +88,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - PGPORT=${PGPORT}
     ports:
-      - 5432:5432
+      - ${PGPORT}:${PGPORT}
     volumes:
-      - dropbucket_volume:/var/lib/postgresql/data
+      - dropbucket_volume:/var/lib/postgresql/data    
   nestjs:
     container_name: dropbucket_nestjs
     build:
@@ -100,7 +101,7 @@ services:
       target: development
     restart: unless-stopped
     ports:
-      - 3000:3000
+      - ${PORT}:${PORT}
     volumes:
       - ./:/app
       - ./src:/app/src
@@ -108,8 +109,8 @@ services:
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
       - ./prisma/seeders.ts:/app/prisma/seeders.ts
       # Exclude node_modules and prisma generated files
-      # - /app/node_modules
-      # - /app/prisma/generated
+      - /app/node_modules
+      - /app/prisma/generated
     environment:
       - NODE_ENV=development
     depends_on:
@@ -147,19 +148,19 @@ volumes:
 
 
 
-# comandos directos
+  # comandos directos
 
-# docker volume create --driver local \
-#     --opt type=none \
-#     --opt device=/mnt/efs/fs1 \
-#     --opt o=bind \
-#     dropbucket-asistir-postgres
+  # docker volume create --driver local \
+  #     --opt type=none \
+  #     --opt device=/mnt/efs/fs1 \
+  #     --opt o=bind \
+  #     dropbucket-asistir-postgres
 
-#  docker run -d \
-#   --name postgres-dropbucket \
-#   -v dropbucket-asistir-postgres:/var/lib/postgresql/data \
-#   -e POSTGRES_USER=admin \
-#   -e POSTGRES_PASSWORD=12345 \
-#   -e POSTGRES_DB=dropbucket \
-#   -p 5432:5432 \
-#   postgres:13.16
+  #  docker run -d \
+  #   --name postgres-dropbucket \
+  #   -v dropbucket-asistir-postgres:/var/lib/postgresql/data \
+  #   -e POSTGRES_USER=admin \
+  #   -e POSTGRES_PASSWORD=12345 \
+  #   -e POSTGRES_DB=dropbucket \
+  #   -p 5432:5432 \
+  #   postgres:13.16
