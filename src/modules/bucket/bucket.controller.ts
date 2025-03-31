@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe, StreamableFile, BadRequestException, NotFoundException, InternalServerErrorException, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Res, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, HttpException, HttpStatus, ParseBoolPipe, StreamableFile, BadRequestException, NotFoundException, InternalServerErrorException, UploadedFiles, Header } from '@nestjs/common';
 import { BucketService } from './bucket.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -103,6 +103,32 @@ export class BucketController {
     @Query('key') key: string) {
     const url = await this.bucketService.getFileUrl(key);
     return url;
+  }
+
+  @Get('view/pdf')
+  @Header('Content-Type', 'application/pdf')
+  async viewAsPdf(@Query('key') key: string): Promise<StreamableFile> {
+    if (!key) {
+      throw new BadRequestException('Se requiere la clave del archivo.');
+    }
+
+    try {
+      const pdfBuffer = await this.bucketService.convertToPdf(key);
+      console.log('pdfBuffer');
+      const filename = path.basename(key, path.extname(key)) + '.pdf';
+      return new StreamableFile(pdfBuffer, {
+        disposition: `inline; filename="${filename}"`, // 'inline' para mostrar en el navegador
+      });
+    } catch (error) {
+      console.error('Error al convertir y servir el archivo como PDF:', error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error al procesar el archivo para visualización.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Get('object')

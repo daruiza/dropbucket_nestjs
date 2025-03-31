@@ -5,6 +5,15 @@ import slugify from 'slugify';
 import { Express } from 'express';
 import { parse } from 'path';
 
+
+import * as path from 'path';
+import * as fs from 'fs/promises';
+import * as os from 'os';
+import * as util from 'util';
+import { exec } from 'child_process';
+
+const asyncExec = util.promisify(exec);
+
 @Injectable()
 export class BucketService {
 
@@ -340,6 +349,117 @@ export class BucketService {
       throw new HttpException(
         `Error al obtener el archivo de S3: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async convertToPdf(key: string): Promise<Buffer> {
+    try {
+      const fileExtension = path.extname(key).toLowerCase().substring(1);
+      const s3Object = await this.downloadObject(key);
+      const fileBuffer = s3Object as Buffer; // Aseguramos que sea un Buffer
+
+      // Guardar el archivo temporalmente
+      const tempDir = os.tmpdir();
+      const originalFileName = path.join(tempDir, `original.${fileExtension}`);
+      await fs.writeFile(originalFileName, fileBuffer);
+
+      let pdfBuffer: Buffer;
+
+      switch (fileExtension) {
+        case 'pdf':
+          pdfBuffer = fileBuffer; // No se necesita conversión
+          break;
+        case 'doc':
+        case 'docx':
+          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'doc');
+          break;
+        case 'xls':
+        case 'xlsx':
+          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'xls');
+          break;
+        case 'ppt':
+        case 'pptx':
+          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'ppt');
+          break;
+        case 'png':
+        case 'jpg':
+        case 'jpeg':
+          pdfBuffer = await this.convertToPdfFromImage(originalFileName);
+          break;
+        default:
+          await fs.unlink(originalFileName);
+          throw new Error(`Formato de archivo "${fileExtension}" no soportado para conversión a PDF.`);
+      }
+
+      // Eliminar el archivo temporal
+      await fs.unlink(originalFileName);
+      return pdfBuffer;
+
+    } catch (error) {
+      console.error('Error al convertir a PDF:', error);
+      if (error.message.includes('no existe en el bucket')) {
+        throw new NotFoundException(error.message);
+      }
+      throw new InternalServerErrorException('No se pudo convertir el archivo a PDF.');
+    }
+  }
+
+  private async convertToPdfUsingLibreOffice(inputPath: string, format: string): Promise<Buffer> {
+    try {
+      const outputPath = `${inputPath}.pdf`;
+      let libreOfficeFormat = '';
+
+      switch (format) {
+        case 'doc':
+        case 'docx':
+          libreOfficeFormat = 'writer_pdf_Export';
+          break;
+        case 'xls':
+        case 'xlsx':
+          libreOfficeFormat = 'calc_pdf_Export';
+          break;
+        case 'ppt':
+        case 'pptx':
+          libreOfficeFormat = 'impress_pdf_Export';
+          break;
+        default:
+          throw new Error(`Formato "${format}" no soportado por LibreOffice.`);
+      }
+
+      // Comando para convertir a PDF usando LibreOffice (debe estar instalado en el servidor)
+      const command = `libreoffice --headless --convert-to pdf:"${libreOfficeFormat}" --outdir ${os.tmpdir()} "${inputPath}"`;
+      const { stdout, stderr } = await asyncExec(command);
+      console.log('LibreOffice stdout:', stdout);
+      if (stderr) {
+        console.error('LibreOffice stderr:', stderr);
+      }
+
+      const pdfBuffer = await fs.readFile(outputPath);
+      await fs.unlink(outputPath); // Eliminar el PDF temporal
+      return pdfBuffer;
+
+    } catch (error) {
+      console.error(`Error al convertir "${format}" a PDF con LibreOffice:`, error);
+      throw new InternalServerErrorException(`Error al convertir archivo "${format}" a PDF.`);
+    }
+  }
+
+  private async convertToPdfFromImage(imagePath: string): Promise<Buffer> {
+    try {
+      const outputPath = `${imagePath}.pdf`;
+      // Utilizar ImageMagick (debe estar instalado en el servidor)
+      const command = `convert "${imagePath}" "${outputPath}"`;
+      const { stdout, stderr } = await asyncExec(command);
+      console.log('ImageMagick stdout:', stdout);
+      if (stderr) {
+        console.error('ImageMagick stderr:', stderr);
+      }
+      const pdfBuffer = await fs.readFile(outputPath);
+      await fs.unlink(outputPath);
+      return pdfBuffer;
+    } catch (error) {
+      console.error('Error al convertir imagen a PDF con ImageMagick:', error);
+      throw new InternalServerErrorException('Error al convertir la imagen a PDF.');
     }
   }
 
