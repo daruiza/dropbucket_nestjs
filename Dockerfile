@@ -10,11 +10,7 @@ COPY src/ ./src/
 
 # Development stage
 FROM base AS development
-RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev
-# RUN apk add --no-cache --virtual .build-deps gcc musl-dev make # Dependencies for building
-# RUN pecl install imagick # Install PHP extension (optional, but sometimes helps with delegates)
-# RUN docker-php-ext-enable imagick
-# RUN apk del .build-deps
+RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice # Install LibreOffice
 RUN npm install
 RUN npm install -g @nestjs/cli
 COPY . .
@@ -24,7 +20,7 @@ CMD ["npm", "run", "start:devtsnd"]
 
 # Production stage
 FROM base AS production
-RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev
+RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice # Install LibreOffice
 RUN npm install --only=production
 RUN npm install -g @nestjs/cli
 RUN npm install ts-node
@@ -39,7 +35,7 @@ CMD ["npm", "run", "start:prod"]
 # Use build argument to select stage
 # FROM ${BUILD_MODE:-development}
 
-# docker compose up --build
+# docker compose up --build development
 
 
 # For development
