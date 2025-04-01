@@ -405,44 +405,81 @@ export class BucketService {
   }
 
   private async convertToPdfUsingLibreOffice(inputPath: string, format: string): Promise<Buffer> {
-    try {
-      const outputPath = `${inputPath}.pdf`;
-      let libreOfficeFormat = '';
-
-      switch (format) {
-        case 'doc':
-        case 'docx':
-          libreOfficeFormat = 'writer_pdf_Export';
-          break;
-        case 'xls':
-        case 'xlsx':
-          libreOfficeFormat = 'calc_pdf_Export';
-          break;
-        case 'ppt':
-        case 'pptx':
-          libreOfficeFormat = 'impress_pdf_Export';
-          break;
-        default:
-          throw new Error(`Formato "${format}" no soportado por LibreOffice.`);
-      }
-
-      // Comando para convertir a PDF usando LibreOffice (debe estar instalado en el servidor)
-      const command = `libreoffice --headless --convert-to pdf:"${libreOfficeFormat}" --outdir ${os.tmpdir()} "${inputPath}"`;
-      const { stdout, stderr } = await asyncExec(command);
-      console.log('LibreOffice stdout:', stdout);
-      if (stderr) {
-        console.error('LibreOffice stderr:', stderr);
-      }
-
-      const pdfBuffer = await fs.readFile(outputPath);
-      await fs.unlink(outputPath); // Eliminar el PDF temporal
-      return pdfBuffer;
-
-    } catch (error) {
-      console.error(`Error al convertir "${format}" a PDF con LibreOffice:`, error);
-      throw new InternalServerErrorException(`Error al convertir archivo "${format}" a PDF.`);
+  try {
+    const tempDir = os.tmpdir();
+    const outputDir = path.join(tempDir, `output_${Date.now()}`);
+    
+    // Crear directorio temporal único para la salida
+    await fs.mkdir(outputDir, { recursive: true });
+    
+    let libreOfficeFormat = '';
+    
+    switch (format) {
+      case 'doc':
+      case 'docx':
+        libreOfficeFormat = 'writer_pdf_Export';
+        break;
+      case 'xls':
+      case 'xlsx':
+        libreOfficeFormat = 'calc_pdf_Export';
+        break;
+      case 'ppt':
+      case 'pptx':
+        libreOfficeFormat = 'impress_pdf_Export';
+        break;
+      default:
+        throw new Error(`Formato "${format}" no soportado por LibreOffice.`);
     }
+    
+    // Para Excel usaremos un comando más simple pero efectivo
+    let command;
+    if (format === 'xls' || format === 'xlsx') {
+      // Comando simplificado para Excel - a veces menos opciones funcionan mejor
+      // Usar orientación de paisaje para hojas de cálculo
+      command = `libreoffice --headless --norestore --convert-to pdf --outdir "${outputDir}" "${inputPath}"`;
+    } else {
+      // Para otros formatos usar el comando con filtro específico
+      command = `libreoffice --headless --norestore --convert-to pdf:"${libreOfficeFormat}" --outdir "${outputDir}" "${inputPath}"`;
+    }
+    
+    console.log('Ejecutando comando:', command);
+    
+    const { stdout, stderr } = await asyncExec(command);
+    console.log('LibreOffice stdout:', stdout);
+    if (stderr) {
+      console.error('LibreOffice stderr:', stderr);
+    }
+    
+    // La ruta del archivo PDF generado por LibreOffice
+    const baseName = path.basename(inputPath, path.extname(inputPath));
+    const generatedPdfPath = path.join(outputDir, `${baseName}.pdf`);
+    
+    // Verificar si el archivo existe
+    try {
+      await fs.access(generatedPdfPath);
+    } catch (error) {
+      console.error(`El archivo PDF no se encontró en: ${generatedPdfPath}`);
+      console.log('Contenido del directorio:', await fs.readdir(outputDir));
+      throw new Error(`No se pudo generar el PDF para el archivo ${format}`);
+    }
+    
+    // Si el archivo existe, leerlo
+    const pdfBuffer = await fs.readFile(generatedPdfPath);
+    
+    // Limpiar archivos temporales
+    try {
+      await fs.unlink(generatedPdfPath);
+      await fs.rmdir(outputDir);
+    } catch (cleanupError) {
+      console.warn('Error al limpiar archivos temporales:', cleanupError);
+    }
+    
+    return pdfBuffer;
+  } catch (error) {
+    console.error(`Error al convertir "${format}" a PDF con LibreOffice:`, error);
+    throw new InternalServerErrorException(`Error al convertir archivo "${format}" a PDF.`);
   }
+}
 
   private async convertToPdfFromImage(imagePath: string): Promise<Buffer> {
     try {
@@ -450,7 +487,7 @@ export class BucketService {
       // Utilizar ImageMagick (debe estar instalado en el servidor)
       const command = `convert "${imagePath}" "${outputPath}"`;
       const { stdout, stderr } = await asyncExec(command);
-      console.log('ImageMagick stdout:', stdout);
+      // console.log('ImageMagick stdout:', stdout);
       if (stderr) {
         console.error('ImageMagick stderr:', stderr);
       }

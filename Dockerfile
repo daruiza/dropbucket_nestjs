@@ -10,7 +10,14 @@ COPY src/ ./src/
 
 # Development stage
 FROM base AS development
-RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice # Install LibreOffice
+# RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice openjdk17-jre-headless
+RUN apk add imagemagick 
+RUN apk add libjpeg-turbo-dev
+RUN apk add libpng-dev
+RUN apk add libreoffice
+RUN apk add openjdk17-jre-headless
+RUN apk add ttf-dejavu
+RUN apk add fontconfig
 RUN npm install
 RUN npm install -g @nestjs/cli
 COPY . .
@@ -20,7 +27,17 @@ CMD ["npm", "run", "start:devtsnd"]
 
 # Production stage
 FROM base AS production
-RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice # Install LibreOffice
+RUN apk add imagemagick 
+RUN apk add libjpeg-turbo-dev
+RUN apk add libpng-dev
+RUN apk add libreoffice
+RUN apk add openjdk17-jre-headless
+RUN apk add ttf-dejavu
+RUN apk add fontconfig
+
+# RUN apk add --no-cache libreoffice libreoffice-calc libreoffice-writer libreoffice-impress
+# RUN apk add --no-cache msttcorefonts-installer fontconfig
+
 RUN npm install --only=production
 RUN npm install -g @nestjs/cli
 RUN npm install ts-node
@@ -35,16 +52,12 @@ CMD ["npm", "run", "start:prod"]
 # Use build argument to select stage
 # FROM ${BUILD_MODE:-development}
 
-# docker compose up --build development
+# docker compose up development
 
 
 # For development
 # docker build --target development -t dropbucket_nestjs:dev .
 
-# For production
-# docker build --target production -t dropbucket_nestjs:prod .
+# For production 
 # docker build --target production -t daruiza/dropbucket_nestjs:aws .
-
-# Tag
-# docker image tag dropbucket_nestjs:prod dropbucket_nestjs:aws
 # docker push daruiza/dropbucket_nestjs:aws

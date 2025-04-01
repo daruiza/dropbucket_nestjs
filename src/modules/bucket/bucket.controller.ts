@@ -114,7 +114,6 @@ export class BucketController {
 
     try {
       const pdfBuffer = await this.bucketService.convertToPdf(key);
-      console.log('pdfBuffer');
       const filename = path.basename(key, path.extname(key)) + '.pdf';
       return new StreamableFile(pdfBuffer, {
         disposition: `inline; filename="${filename}"`, // 'inline' para mostrar en el navegador
