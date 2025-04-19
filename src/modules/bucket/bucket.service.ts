@@ -1,8 +1,27 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CopyObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, GetObjectCommandOutput, HeadObjectCommand, ListObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { 
+  HttpException, 
+  HttpStatus, 
+  Injectable, 
+  InternalServerErrorException, 
+  NotFoundException } from '@nestjs/common';
+
+import { 
+  CopyObjectCommand, 
+  DeleteObjectCommand, 
+  DeleteObjectsCommand, 
+  GetObjectCommand, 
+  GetObjectCommandOutput, 
+  HeadObjectCommand, 
+  ListObjectsCommand, 
+  ListObjectsV2Command, 
+  PutObjectCommand, 
+  S3Client } from '@aws-sdk/client-s3';
+
+import { Upload } from '@aws-sdk/lib-storage';
+
+  
 import { Readable } from 'stream';
 import slugify from 'slugify';
-import { Express } from 'express';
 import { parse } from 'path';
 
 
@@ -275,7 +294,22 @@ export class BucketService {
           },
         };
 
-        await this.s3Client.send(new PutObjectCommand(params));
+        // await this.s3Client.send(new PutObjectCommand(params));
+
+        const upload = new Upload({
+          client: this.s3Client,
+          params: {
+            Bucket: this.bucketName,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            Metadata: {
+              originalName: file.originalname,
+            },
+          },
+        });
+
+        const result = await upload.done();
 
         uploadResults.push({
           key,
