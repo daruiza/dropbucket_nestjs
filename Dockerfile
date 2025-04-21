@@ -61,3 +61,7 @@ CMD ["npm", "run", "start:prod"]
 # For production 
 # docker build --target production -t daruiza/dropbucket_nestjs:aws .
 # docker push daruiza/dropbucket_nestjs:aws
+
+# Comando de reparación ante nuevas dependencias
+# rm -r node_modules && rm package-lock.json && npm install --force
+# docker compose down -v && docker compose up --build

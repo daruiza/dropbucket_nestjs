@@ -14,10 +14,10 @@ import {
   HeadObjectCommand, 
   ListObjectsCommand, 
   ListObjectsV2Command, 
-  PutObjectCommand, 
-  S3Client } from '@aws-sdk/client-s3';
+  PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { Upload } from '@aws-sdk/lib-storage';
+import { S3Client, S3 } from "@aws-sdk/client-s3";
 
   
 import { Readable } from 'stream';
