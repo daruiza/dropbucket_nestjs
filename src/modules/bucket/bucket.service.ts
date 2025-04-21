@@ -386,57 +386,57 @@ export class BucketService {
     }
   }
 
-  async convertToPdf(key: string): Promise<Buffer> {
-    try {
-      const fileExtension = path.extname(key).toLowerCase().substring(1);
-      const s3Object = await this.downloadObject(key);
-      const fileBuffer = s3Object as Buffer; // Aseguramos que sea un Buffer
+  // async convertToPdf(key: string): Promise<Buffer> {
+  //   try {
+  //     const fileExtension = path.extname(key).toLowerCase().substring(1);
+  //     const s3Object = await this.downloadObject(key);
+  //     const fileBuffer = s3Object as Buffer; // Aseguramos que sea un Buffer
 
-      // Guardar el archivo temporalmente
-      const tempDir = os.tmpdir();
-      const originalFileName = path.join(tempDir, `original.${fileExtension}`);
-      await fs.writeFile(originalFileName, fileBuffer);
+  //     // Guardar el archivo temporalmente
+  //     const tempDir = os.tmpdir();
+  //     const originalFileName = path.join(tempDir, `original.${fileExtension}`);
+  //     await fs.writeFile(originalFileName, fileBuffer);
 
-      let pdfBuffer: Buffer;
+  //     let pdfBuffer: Buffer;
 
-      switch (fileExtension) {
-        case 'pdf':
-          pdfBuffer = fileBuffer; // No se necesita conversión
-          break;
-        case 'doc':
-        case 'docx':
-          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'doc');
-          break;
-        case 'xls':
-        case 'xlsx':
-          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'xls');
-          break;
-        case 'ppt':
-        case 'pptx':
-          pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'ppt');
-          break;
-        case 'png':
-        case 'jpg':
-        case 'jpeg':
-          pdfBuffer = await this.convertToPdfFromImage(originalFileName);
-          break;
-        default:
-          await fs.unlink(originalFileName);
-          throw new Error(`Formato de archivo "${fileExtension}" no soportado para conversión a PDF.`);
-      }
+  //     switch (fileExtension) {
+  //       case 'pdf':
+  //         pdfBuffer = fileBuffer; // No se necesita conversión
+  //         break;
+  //       case 'doc':
+  //       case 'docx':
+  //         pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'doc');
+  //         break;
+  //       case 'xls':
+  //       case 'xlsx':
+  //         pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'xls');
+  //         break;
+  //       case 'ppt':
+  //       case 'pptx':
+  //         pdfBuffer = await this.convertToPdfUsingLibreOffice(originalFileName, 'ppt');
+  //         break;
+  //       case 'png':
+  //       case 'jpg':
+  //       case 'jpeg':
+  //         pdfBuffer = await this.convertToPdfFromImage(originalFileName);
+  //         break;
+  //       default:
+  //         await fs.unlink(originalFileName);
+  //         throw new Error(`Formato de archivo "${fileExtension}" no soportado para conversión a PDF.`);
+  //     }
 
-      // Eliminar el archivo temporal
-      await fs.unlink(originalFileName);
-      return pdfBuffer;
+  //     // Eliminar el archivo temporal
+  //     await fs.unlink(originalFileName);
+  //     return pdfBuffer;
 
-    } catch (error) {
-      console.error('Error al convertir a PDF:', error);
-      if (error.message.includes('no existe en el bucket')) {
-        throw new NotFoundException(error.message);
-      }
-      throw new InternalServerErrorException('No se pudo convertir el archivo a PDF.');
-    }
-  }
+  //   } catch (error) {
+  //     console.error('Error al convertir a PDF:', error);
+  //     if (error.message.includes('no existe en el bucket')) {
+  //       throw new NotFoundException(error.message);
+  //     }
+  //     throw new InternalServerErrorException('No se pudo convertir el archivo a PDF.');
+  //   }
+  // }
 
   private async convertToPdfUsingLibreOffice(inputPath: string, format: string): Promise<Buffer> {
   try {

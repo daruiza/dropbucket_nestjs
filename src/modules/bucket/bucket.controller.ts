@@ -105,30 +105,30 @@ export class BucketController {
     return url;
   }
 
-  @Get('view/pdf')
-  @Header('Content-Type', 'application/pdf')
-  async viewAsPdf(@Query('key') key: string): Promise<StreamableFile> {
-    if (!key) {
-      throw new BadRequestException('Se requiere la clave del archivo.');
-    }
+  // @Get('view/pdf')
+  // @Header('Content-Type', 'application/pdf')
+  // async viewAsPdf(@Query('key') key: string): Promise<StreamableFile> {
+  //   if (!key) {
+  //     throw new BadRequestException('Se requiere la clave del archivo.');
+  //   }
 
-    try {
-      const pdfBuffer = await this.bucketService.convertToPdf(key);
-      const filename = path.basename(key, path.extname(key)) + '.pdf';
-      return new StreamableFile(pdfBuffer, {
-        disposition: `inline; filename="${filename}"`, // 'inline' para mostrar en el navegador
-      });
-    } catch (error) {
-      console.error('Error al convertir y servir el archivo como PDF:', error);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new HttpException(
-        'Error al procesar el archivo para visualización.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  //   try {
+  //     const pdfBuffer = await this.bucketService.convertToPdf(key);
+  //     const filename = path.basename(key, path.extname(key)) + '.pdf';
+  //     return new StreamableFile(pdfBuffer, {
+  //       disposition: `inline; filename="${filename}"`, // 'inline' para mostrar en el navegador
+  //     });
+  //   } catch (error) {
+  //     console.error('Error al convertir y servir el archivo como PDF:', error);
+  //     if (error instanceof NotFoundException) {
+  //       throw error;
+  //     }
+  //     throw new HttpException(
+  //       'Error al procesar el archivo para visualización.',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
   @Get('object')
   async downloadObject(

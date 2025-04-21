@@ -67,8 +67,8 @@ services:
 #       - ./:/app
 #     environment:
 #       - NODE_ENV=development
-#     command: sh -c "npm install -g @nestjs/cli"
-#     # command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
+#     # command: sh -c "npm install && npm install -g @nestjs/cli"
+#     command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
 #     depends_on:
 #       - postgres
 
@@ -107,6 +107,7 @@ services:
       - ${PORT}:${PORT}
     volumes:
       - ./:/app
+      # - ./node_modules:/app/node_modules
       - ./src:/app/src
       - ./test:/app/test
       - ./prisma/schema.prisma:/app/prisma/schema.prisma

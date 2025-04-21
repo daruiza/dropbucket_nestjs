@@ -11,15 +11,16 @@ COPY src/ ./src/
 # Development stage
 FROM base AS development
 # RUN apk add --no-cache imagemagick libjpeg-turbo-dev libpng-dev libreoffice openjdk17-jre-headless
-RUN apk add imagemagick 
-RUN apk add libjpeg-turbo-dev
-RUN apk add libpng-dev
-RUN apk add libreoffice
-RUN apk add openjdk17-jre-headless
-RUN apk add ttf-dejavu
-RUN apk add fontconfig
+# RUN apk add imagemagick 
+# RUN apk add libjpeg-turbo-dev
+# RUN apk add libpng-dev
+# RUN apk add libreoffice
+# RUN apk add openjdk17-jre-headless
+# RUN apk add ttf-dejavu
+# RUN apk add fontconfig
 RUN npm install
 RUN npm install -g @nestjs/cli
+RUN npm install ts-node
 COPY . .
 RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 # RUN npm run test
@@ -27,13 +28,13 @@ CMD ["npm", "run", "start:devtsnd"]
 
 # Production stage
 FROM base AS production
-RUN apk add imagemagick 
-RUN apk add libjpeg-turbo-dev
-RUN apk add libpng-dev
-RUN apk add libreoffice
-RUN apk add openjdk17-jre-headless
-RUN apk add ttf-dejavu
-RUN apk add fontconfig
+# RUN apk add imagemagick 
+# RUN apk add libjpeg-turbo-dev
+# RUN apk add libpng-dev
+# RUN apk add libreoffice
+# RUN apk add openjdk17-jre-headless
+# RUN apk add ttf-dejavu
+# RUN apk add fontconfig
 
 # RUN apk add --no-cache libreoffice libreoffice-calc libreoffice-writer libreoffice-impress
 # RUN apk add --no-cache msttcorefonts-installer fontconfig
