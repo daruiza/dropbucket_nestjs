@@ -7,7 +7,7 @@ import { Response } from 'express';
 import * as path from 'path';
 import * as archiver from 'archiver';
 import { Express } from 'express';
-import { Public } from '../auth/decorators/public.decorator';
+import { Public } from '../../decorators/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('bucket')
