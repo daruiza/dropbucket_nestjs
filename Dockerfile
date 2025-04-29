@@ -41,7 +41,7 @@ FROM base AS production
 
 RUN npm install --only=production
 RUN npm install -g @nestjs/cli
-# RUN npm install ts-node
+RUN npm install ts-node
 COPY . .
 RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 # RUN npm run test
