@@ -7,6 +7,7 @@ import { Response } from 'express';
 import * as path from 'path';
 import * as archiver from 'archiver';
 import { Express } from 'express';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('bucket')
@@ -80,6 +81,27 @@ export class BucketController {
   @Post('upload-multiple')
   @UseInterceptors(FilesInterceptor('files', 10))
   async uploadMultipleFiles(
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
+          new MaxFileSizeValidator({
+            maxSize: 10485760,
+            message: 'File is too large. Max file size is 10MB',
+          }),
+        ],
+        fileIsRequired: true,
+      })
+    ) files: Express.Multer.File[],
+    @Body('prefix') prefix?: string,
+  ): Promise<any> {
+    return await this.bucketService.uploadMultipleFiles(files, prefix);
+  }
+
+  @Public()
+  @Post('upload-multiple-public')
+  @UseInterceptors(FilesInterceptor('files', 10))
+  async uploadMultipleFilesPublic(
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
