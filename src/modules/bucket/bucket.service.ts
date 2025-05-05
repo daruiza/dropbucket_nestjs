@@ -25,13 +25,12 @@ import slugify from 'slugify';
 import { parse } from 'path';
 
 
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import * as os from 'os';
-import * as util from 'util';
-import { exec } from 'child_process';
-
-const asyncExec = util.promisify(exec);
+// import * as path from 'path';
+// import * as fs from 'fs/promises';
+// import * as os from 'os';
+// import * as util from 'util';
+// import { exec } from 'child_process';
+// const asyncExec = util.promisify(exec);
 
 @Injectable()
 export class BucketService {
@@ -250,7 +249,14 @@ export class BucketService {
         },
       };
 
-      await this.s3Client.send(new PutObjectCommand(params));
+      // Usa Upload de @aws-sdk/lib-storage
+      const upload = new Upload({
+        client: this.s3Client,
+        params: params,
+      });
+
+      await upload.done(); // Espera a que la subida se complete
+      // await this.s3Client.send(new PutObjectCommand(params));
       return {
         key,
         url: `https://${this.bucketName}.s3.amazonaws.com/${key}`,
@@ -438,101 +444,101 @@ export class BucketService {
   //   }
   // }
 
-  private async convertToPdfUsingLibreOffice(inputPath: string, format: string): Promise<Buffer> {
-  try {
-    const tempDir = os.tmpdir();
-    const outputDir = path.join(tempDir, `output_${Date.now()}`);
+//   private async convertToPdfUsingLibreOffice(inputPath: string, format: string): Promise<Buffer> {
+//   try {
+//     const tempDir = os.tmpdir();
+//     const outputDir = path.join(tempDir, `output_${Date.now()}`);
     
-    // Crear directorio temporal único para la salida
-    await fs.mkdir(outputDir, { recursive: true });
+//     // Crear directorio temporal único para la salida
+//     await fs.mkdir(outputDir, { recursive: true });
     
-    let libreOfficeFormat = '';
+//     let libreOfficeFormat = '';
     
-    switch (format) {
-      case 'doc':
-      case 'docx':
-        libreOfficeFormat = 'writer_pdf_Export';
-        break;
-      case 'xls':
-      case 'xlsx':
-        libreOfficeFormat = 'calc_pdf_Export';
-        break;
-      case 'ppt':
-      case 'pptx':
-        libreOfficeFormat = 'impress_pdf_Export';
-        break;
-      default:
-        throw new Error(`Formato "${format}" no soportado por LibreOffice.`);
-    }
+//     switch (format) {
+//       case 'doc':
+//       case 'docx':
+//         libreOfficeFormat = 'writer_pdf_Export';
+//         break;
+//       case 'xls':
+//       case 'xlsx':
+//         libreOfficeFormat = 'calc_pdf_Export';
+//         break;
+//       case 'ppt':
+//       case 'pptx':
+//         libreOfficeFormat = 'impress_pdf_Export';
+//         break;
+//       default:
+//         throw new Error(`Formato "${format}" no soportado por LibreOffice.`);
+//     }
     
-    // Para Excel usaremos un comando más simple pero efectivo
-    let command;
-    if (format === 'xls' || format === 'xlsx') {
-      // Comando simplificado para Excel - a veces menos opciones funcionan mejor
-      // Usar orientación de paisaje para hojas de cálculo
-      command = `libreoffice --headless --norestore --convert-to pdf --outdir "${outputDir}" "${inputPath}"`;
-    } else {
-      // Para otros formatos usar el comando con filtro específico
-      command = `libreoffice --headless --norestore --convert-to pdf:"${libreOfficeFormat}" --outdir "${outputDir}" "${inputPath}"`;
-    }
+//     // Para Excel usaremos un comando más simple pero efectivo
+//     let command;
+//     if (format === 'xls' || format === 'xlsx') {
+//       // Comando simplificado para Excel - a veces menos opciones funcionan mejor
+//       // Usar orientación de paisaje para hojas de cálculo
+//       command = `libreoffice --headless --norestore --convert-to pdf --outdir "${outputDir}" "${inputPath}"`;
+//     } else {
+//       // Para otros formatos usar el comando con filtro específico
+//       command = `libreoffice --headless --norestore --convert-to pdf:"${libreOfficeFormat}" --outdir "${outputDir}" "${inputPath}"`;
+//     }
     
-    console.log('Ejecutando comando:', command);
+//     console.log('Ejecutando comando:', command);
     
-    const { stdout, stderr } = await asyncExec(command);
-    console.log('LibreOffice stdout:', stdout);
-    if (stderr) {
-      console.error('LibreOffice stderr:', stderr);
-    }
+//     const { stdout, stderr } = await asyncExec(command);
+//     console.log('LibreOffice stdout:', stdout);
+//     if (stderr) {
+//       console.error('LibreOffice stderr:', stderr);
+//     }
     
-    // La ruta del archivo PDF generado por LibreOffice
-    const baseName = path.basename(inputPath, path.extname(inputPath));
-    const generatedPdfPath = path.join(outputDir, `${baseName}.pdf`);
+//     // La ruta del archivo PDF generado por LibreOffice
+//     const baseName = path.basename(inputPath, path.extname(inputPath));
+//     const generatedPdfPath = path.join(outputDir, `${baseName}.pdf`);
     
-    // Verificar si el archivo existe
-    try {
-      await fs.access(generatedPdfPath);
-    } catch (error) {
-      console.error(`El archivo PDF no se encontró en: ${generatedPdfPath}`);
-      console.log('Contenido del directorio:', await fs.readdir(outputDir));
-      throw new Error(`No se pudo generar el PDF para el archivo ${format}`);
-    }
+//     // Verificar si el archivo existe
+//     try {
+//       await fs.access(generatedPdfPath);
+//     } catch (error) {
+//       console.error(`El archivo PDF no se encontró en: ${generatedPdfPath}`);
+//       console.log('Contenido del directorio:', await fs.readdir(outputDir));
+//       throw new Error(`No se pudo generar el PDF para el archivo ${format}`);
+//     }
     
-    // Si el archivo existe, leerlo
-    const pdfBuffer = await fs.readFile(generatedPdfPath);
+//     // Si el archivo existe, leerlo
+//     const pdfBuffer = await fs.readFile(generatedPdfPath);
     
-    // Limpiar archivos temporales
-    try {
-      await fs.unlink(generatedPdfPath);
-      await fs.rmdir(outputDir);
-    } catch (cleanupError) {
-      console.warn('Error al limpiar archivos temporales:', cleanupError);
-    }
+//     // Limpiar archivos temporales
+//     try {
+//       await fs.unlink(generatedPdfPath);
+//       await fs.rmdir(outputDir);
+//     } catch (cleanupError) {
+//       console.warn('Error al limpiar archivos temporales:', cleanupError);
+//     }
     
-    return pdfBuffer;
-  } catch (error) {
-    console.error(`Error al convertir "${format}" a PDF con LibreOffice:`, error);
-    throw new InternalServerErrorException(`Error al convertir archivo "${format}" a PDF.`);
-  }
-}
+//     return pdfBuffer;
+//   } catch (error) {
+//     console.error(`Error al convertir "${format}" a PDF con LibreOffice:`, error);
+//     throw new InternalServerErrorException(`Error al convertir archivo "${format}" a PDF.`);
+//   }
+// }
 
-  private async convertToPdfFromImage(imagePath: string): Promise<Buffer> {
-    try {
-      const outputPath = `${imagePath}.pdf`;
-      // Utilizar ImageMagick (debe estar instalado en el servidor)
-      const command = `convert "${imagePath}" "${outputPath}"`;
-      const { stdout, stderr } = await asyncExec(command);
-      // console.log('ImageMagick stdout:', stdout);
-      if (stderr) {
-        console.error('ImageMagick stderr:', stderr);
-      }
-      const pdfBuffer = await fs.readFile(outputPath);
-      await fs.unlink(outputPath);
-      return pdfBuffer;
-    } catch (error) {
-      console.error('Error al convertir imagen a PDF con ImageMagick:', error);
-      throw new InternalServerErrorException('Error al convertir la imagen a PDF.');
-    }
-  }
+//   private async convertToPdfFromImage(imagePath: string): Promise<Buffer> {
+//     try {
+//       const outputPath = `${imagePath}.pdf`;
+//       // Utilizar ImageMagick (debe estar instalado en el servidor)
+//       const command = `convert "${imagePath}" "${outputPath}"`;
+//       const { stdout, stderr } = await asyncExec(command);
+//       // console.log('ImageMagick stdout:', stdout);
+//       if (stderr) {
+//         console.error('ImageMagick stderr:', stderr);
+//       }
+//       const pdfBuffer = await fs.readFile(outputPath);
+//       await fs.unlink(outputPath);
+//       return pdfBuffer;
+//     } catch (error) {
+//       console.error('Error al convertir imagen a PDF con ImageMagick:', error);
+//       throw new InternalServerErrorException('Error al convertir la imagen a PDF.');
+//     }
+//   }
 
   /**
    * Descarga un archivo desde un bucket de S3
@@ -630,11 +636,16 @@ export class BucketService {
     const params = {
       Bucket: this.bucketName,
       Key: folderPath, // Esto actúa como la carpeta
-      Body: '', // Dejar el cuerpo vacío ya que no necesita contenido
+      Body: Buffer.from(''), // Dejar el cuerpo vacío ya que no necesita contenido
     };
 
     try {
-      await this.s3Client.send(new PutObjectCommand(params));
+      // await this.s3Client.send(new PutObjectCommand(params));
+      const upload = new Upload({
+        client: this.s3Client,
+        params: params,
+    });
+    await upload.done();
       return { message: `Carpeta ${folderPath} creada con éxito` };
     } catch (error) {
       console.error('Error al crear la carpeta en S3:', error);
