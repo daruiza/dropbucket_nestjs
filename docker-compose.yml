@@ -67,8 +67,11 @@ services:
 #       - ./:/app
 #     environment:
 #       - NODE_ENV=development
-#     command: sh -c "npm install"
+#       - NODE_TLS_REJECT_UNAUTHORIZED=0
+#     # command: sh -c "npm install"
 #     # command: sh -c "npm install -g @nestjs/cli && npm run start:devtsnd"
+#     command: sh -c "npm install -g @nestjs/cli && npm install && npx prisma generate && npm run start:devtsnd"
+
 #     depends_on:
 #       - postgres
 

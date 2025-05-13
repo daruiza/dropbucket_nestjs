@@ -152,9 +152,10 @@ export class BucketController {
   //   }
   // }
 
-  @Get('object')
-  async downloadObject(
+  @Get('object-old')
+  async downloadObjecOld(
     @Query('key') key: string,
+    @Res({ passthrough: true }) res: Response
   ) {
     if (!key) {
       // Manejar caso donde no se proporciona key
@@ -182,6 +183,70 @@ export class BucketController {
 
     }
   }
+
+  @Get('object')
+async downloadObject(
+  @Query('key') key: string,
+  @Res({ passthrough: true }) res: Response
+) {
+  if (!key) {
+    throw new BadRequestException('Se requiere un key de objeto');
+  }
+
+  try {
+    const fileBuffer = await this.bucketService.downloadObject(key);
+    const filename = path.basename(key);
+    
+    // Determinar el tipo MIME basado en la extensión del archivo
+    const mimeType = this.getMimeType(filename);
+    
+    // Para archivos binarios, no incluimos charset
+    const isTextFile = mimeType.startsWith('text/') || 
+                       mimeType === 'application/json' ||
+                       mimeType === 'application/xml';
+    
+    // Configurar los headers apropiadamente
+    res.set({
+      'Content-Type': isTextFile ? `${mimeType}; charset=utf-8` : mimeType,
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'Content-Length': fileBuffer.length.toString(),
+      'Access-Control-Expose-Headers': 'Content-Disposition'
+    });
+
+    return new StreamableFile(fileBuffer);
+  } catch (error) {
+    console.error('Error en descarga de objeto:', error);
+    
+    if (error.name === 'NoSuchKey') {
+      throw new NotFoundException('Objeto no encontrado en el bucket');
+    }
+    throw new InternalServerErrorException('Error al descargar el objeto');
+  }
+}
+
+  // Método para determinar el tipo MIME basado en la extensión
+  private getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    
+    const mimeTypes = {
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.txt': 'text/plain',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls': 'application/vnd.ms-excel',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.zip': 'application/zip',
+      '.mp4': 'video/mp4',
+      '.mp3': 'audio/mpeg',
+      // Añade más tipos según necesites
+    };
+    
+    return mimeTypes[ext] || 'application/octet-stream';
+  }
+
 
   @Get('download')
   async downloadFile(
@@ -226,8 +291,8 @@ export class BucketController {
   async deleteFile(
     @Query('key') key: string,
     @Res() res: Response) {
-    const fileBuffer = await this.bucketService.deleteFile(key);
-    res.send(fileBuffer);
+    const response = await this.bucketService.deleteFile(key);
+    res.send(response);
   }
 
   @Get('renamefile')

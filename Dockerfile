@@ -60,7 +60,7 @@ CMD ["npm", "run", "start:prod"]
 # docker build --target development -t dropbucket_nestjs:dev .
 
 # For production 
-# docker build --target production -t daruiza/dropbucket_nestjs:aws .
+# docker build -t daruiza/dropbucket_nestjs:aws .
 # docker push daruiza/dropbucket_nestjs:aws
 
 # Comando de reparación ante nuevas dependencias
