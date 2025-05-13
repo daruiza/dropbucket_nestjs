@@ -28,6 +28,12 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Configurar express para usar charset UTF-8
+  app.use((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    next();
+  });
+
   // app.enableCors({
   //   origin: 'http://flutter:8080', // Ajusta esto según tu entorno
   //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
