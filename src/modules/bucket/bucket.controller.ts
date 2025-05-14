@@ -16,7 +16,6 @@ import { Public } from '../../decorators/public.decorator';
 export class BucketController {
   constructor(private readonly bucketService: BucketService) { }
 
-
   // TODO: el listar debe tambien traer metadatos {tamaño, etc}
   @Get('list')
   async listObjects(
@@ -64,7 +63,7 @@ export class BucketController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
@@ -84,7 +83,7 @@ export class BucketController {
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
@@ -105,7 +104,7 @@ export class BucketController {
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|octet-stream)' }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
@@ -184,7 +183,7 @@ export class BucketController {
     }
   }
 
-  @Get('object')
+@Get('object')
 async downloadObject(
   @Query('key') key: string,
   @Res({ passthrough: true }) res: Response
@@ -241,7 +240,18 @@ async downloadObject(
       '.zip': 'application/zip',
       '.mp4': 'video/mp4',
       '.mp3': 'audio/mpeg',
-      // Añade más tipos según necesites
+      '.rar': 'application/x-rar-compressed',
+      '.tar': 'application/x-tar',
+      '.ppt': 'application/vnd.ms-powerpoint',
+      '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.css': 'text/css',
+      '.html': 'text/html',
+      '.js': 'application/javascript',
+      '.json': 'application/json',
+      '.xml': 'application/xml',
+      '.md': 'text/markdown',
+      '.bin': 'application/octet-stream',
+      'octet-stream': 'application/octet-stream',
     };
     
     return mimeTypes[ext] || 'application/octet-stream';
