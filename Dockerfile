@@ -2,7 +2,7 @@
 FROM node:22.7.0-alpine3.20 AS base
 EXPOSE 3031
 WORKDIR /app
-RUN apk add --no-cache openssl ca-certificates
+# RUN apk add --no-cache openssl ca-certificates
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY prisma/ ./prisma/
@@ -60,7 +60,7 @@ CMD ["npm", "run", "start:prod"]
 # docker build --target development -t dropbucket_nestjs:dev .
 
 # For production 
-# docker build -t daruiza/dropbucket_nestjs:aws .
+# docker build --target production -t daruiza/dropbucket_nestjs:aws .
 # docker push daruiza/dropbucket_nestjs:aws
 
 # Comando de reparación ante nuevas dependencias
