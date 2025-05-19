@@ -361,12 +361,28 @@ export class BucketService {
     const extension = fileName.split('.').pop()?.toLowerCase();
     switch (extension) {
       case 'png': return 'image/png';
-      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'jpg': return 'image/jpeg';
+      case 'jpeg': return 'image/jpeg';
       case 'pdf': return 'application/pdf';
       case 'doc': return 'application/msword';
       case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
       case 'zip': return 'application/zip';
       case 'json': return 'application/json';
+      case 'txt': return 'text/plain';
+      case 'xls': return 'application/vnd.ms-excel';
+      case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'mp4': return 'video/mp4';
+      case 'mp3': return 'audio/mpeg';
+      case 'rar': return 'application/x-rar-compressed';
+      case 'tar': return 'application/x-tar';
+      case 'ppt': return 'application/vnd.ms-powerpoint';
+      case 'pptx': return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      case 'css': return 'text/css';
+      case 'html': return 'text/html';
+      case 'js': return 'application/javascript';
+      case 'xml': return 'application/xml';
+      case 'md': return 'text/markdown';
+      case 'bin': return 'application/octet-stream';
       default: return 'application/octet-stream';
     }
   }

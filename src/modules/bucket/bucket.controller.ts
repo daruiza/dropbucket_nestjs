@@ -8,6 +8,7 @@ import * as path from 'path';
 import * as archiver from 'archiver';
 import { Express } from 'express';
 import { Public } from '../../decorators/public.decorator';
+import { CustomFileValidator } from '../../validators/custom-file.validator';
 
 @ApiBearerAuth()
 @ApiTags('bucket')
@@ -63,6 +64,7 @@ export class BucketController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
+          // new CustomFileValidator(),
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
           new MaxFileSizeValidator({
             maxSize: 10485760,
@@ -76,14 +78,14 @@ export class BucketController {
   ): Promise<any> {
     return await this.bucketService.uploadFile(file, prefix);
   }
-
+  
   @Post('upload-multiple')
   @UseInterceptors(FilesInterceptor('files', 10))
   async uploadMultipleFiles(
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
+          new CustomFileValidator(),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
@@ -104,7 +106,7 @@ export class BucketController {
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf|doc|docx|xls|xlsx|ppt|pptx|rar|tar|zip|txt|css|html|js|json|xml|md|bin|txt|octet-stream)' }),
+          new CustomFileValidator(),
           new MaxFileSizeValidator({
             maxSize: 10485760,
             message: 'File is too large. Max file size is 10MB',
@@ -250,8 +252,7 @@ async downloadObject(
       '.json': 'application/json',
       '.xml': 'application/xml',
       '.md': 'text/markdown',
-      '.bin': 'application/octet-stream',
-      'octet-stream': 'application/octet-stream',
+      '.bin': 'application/octet-stream',      
     };
     
     return mimeTypes[ext] || 'application/octet-stream';
