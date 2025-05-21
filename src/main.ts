@@ -28,6 +28,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
+
   // Configurar express para usar charset UTF-8
   // app.use((req, res, next) => {
   //   res.setHeader('Content-Type', 'application/json');
