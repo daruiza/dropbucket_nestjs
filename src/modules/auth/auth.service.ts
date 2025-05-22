@@ -26,14 +26,14 @@ export class AuthService {
     if (loginAuthDto.email) {
       user = await this.userService.findOneByEmail(loginAuthDto.email);
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Credenciales Invalidas');
       }
     }
 
     if (loginAuthDto.name) {
       user = await this.userService.findOneByName(loginAuthDto.name);
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Credenciales Invalidas');
       }
     }
 
@@ -41,7 +41,8 @@ export class AuthService {
     // Compara la contraseña
     const passwordMatches = await this.userService.comparePasswords(loginAuthDto.password, user.password);
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid credentials');
+      console.log(new UnauthorizedException('Credenciales Invalidas'));
+      throw new UnauthorizedException('Credenciales Invalidas');
     }
 
     const payload = {
@@ -54,7 +55,7 @@ export class AuthService {
 
     return {
       user,
-      message: 'Login successful',
+      message: 'Inicio de sesión exitosa',
       token: await this.jwtService.signAsync(payload),
     };
   }
@@ -71,11 +72,11 @@ export class AuthService {
       // - Limpiar sesiones
 
       return {
-        message: 'Logout successful',
+        message: 'Cierre de sesión exitoso',
         status: true
       };
     } catch (error) {
-      throw new InternalServerErrorException('Error during logout');
+      throw new InternalServerErrorException('Error al cerrar sesión');
     }
   }
 

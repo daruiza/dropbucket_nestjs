@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Query, Header } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,11 +17,13 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post()
+  @Header('Content-Type', 'application/json; charset=utf-8')
   create(@Body(ValidateCreatePipe) createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
+  @Header('Content-Type', 'application/json; charset=utf-8')
   findAll(
     @Query('skip') skip?: number,
     @Query('take') take?: number,
@@ -30,21 +32,25 @@ export class UserController {
   }
 
   @Get('findbyname/:name')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   findOneByName(@Param('name') name: string) {
     return this.userService.findOneByName(name);
   }
 
   @Get('findbyemail/:email')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   findOneByEmail(@Param('email') email: string) {
     return this.userService.findOneByEmail(email);
   }
 
   @Get(':id')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(+id);
   }
   
   @Patch(':id')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   update(
     @Param('id', ParseIntPipe) id: string,
     @Body() updateUserDto: UpdateUserDto) {
@@ -52,6 +58,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }

@@ -19,6 +19,7 @@ export class BucketController {
 
   // TODO: el listar debe tambien traer metadatos {tamaño, etc}
   @Get('list')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async listObjects(
     @Query('prefix') prefix?: string,
     @Query('delimiter') delimiter?: string,
@@ -30,6 +31,7 @@ export class BucketController {
 
 
   @Get('exists')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async checkFileExists(
     @Query('key') key: string): Promise<{ exist: boolean }> {
     try {
@@ -44,6 +46,7 @@ export class BucketController {
   }
 
   @Get('prefix-exists')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async checkPrefixExists(
     @Query('prefix') prefix: string,
   ): Promise<{ exist: boolean }> {
@@ -59,6 +62,7 @@ export class BucketController {
   }
 
   @Post('upload')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile(
@@ -80,6 +84,7 @@ export class BucketController {
   }
   
   @Post('upload-multiple')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   @UseInterceptors(FilesInterceptor('files', 10))
   async uploadMultipleFiles(
     @UploadedFiles(
@@ -101,6 +106,7 @@ export class BucketController {
 
   @Public()
   @Post('upload-multiple-public')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   @UseInterceptors(FilesInterceptor('files', 10))
   async uploadMultipleFilesPublic(
     @UploadedFiles(
@@ -122,6 +128,7 @@ export class BucketController {
 
 
   @Get('url')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async getFile(
     @Query('key') key: string) {
     const url = await this.bucketService.getFileUrl(key);
@@ -153,7 +160,7 @@ export class BucketController {
   //   }
   // }
 
-  @Get('object-old')
+  @Get('object-old')  
   async downloadObjecOld(
     @Query('key') key: string,
     @Res({ passthrough: true }) res: Response
@@ -287,18 +294,21 @@ async downloadObject(
   }
 
   @Post('create/prefix')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async createFolder(
     @Query('key') key: string) {
     return await this.bucketService.createFolder(key);
   }
 
   @Delete('delete/prefix')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async delteFolder(
     @Query('key') key: string) {
     return await this.bucketService.deleteFolder(key);
   }
 
   @Delete()
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async deleteFile(
     @Query('key') key: string,
     @Res() res: Response) {
@@ -307,6 +317,7 @@ async downloadObject(
   }
 
   @Get('renamefile')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async renameFile(
     @Query('oldkey') oldkey: string,
     @Query('newkey') newkey: string) {
@@ -315,6 +326,7 @@ async downloadObject(
   }
 
   @Get('renameprefix')
+  @Header('Content-Type', 'application/json; charset=utf-8')
   async renamePrefix(
     @Query('oldprefix') oldprefix: string,
     @Query('newprefix') newprefix: string) {

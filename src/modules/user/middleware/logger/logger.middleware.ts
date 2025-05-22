@@ -15,8 +15,21 @@ export class LoggerMiddleware implements NestMiddleware {
       const contentLength = res.get('content-length') || 0;
       const responseTime = Date.now() - startTime;
 
+      const now = new Date();
+      const colombianTime = now.toLocaleString('es-CO', {
+        timeZone: 'America/Bogota',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3, // Para milisegundos si es necesario
+      });
+
       const logMessage = {
-        timestamp: new Date().toISOString(),
+        timestamp: colombianTime,
+        // timestamp: new Date().toISOString(),
         method,
         originalUrl,
         ip,
