@@ -14,10 +14,10 @@ import { LoggerMiddleware } from './modules/user/middleware/logger/logger.middle
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-          .apply(LoggerMiddleware)
-          .forRoutes(
-            { path: '*', method: RequestMethod.ALL },    
-          )
+    // consumer
+    //   .apply(LoggerMiddleware)
+    //   .forRoutes(
+    //     { path: '*', method: RequestMethod.ALL },    
+    //   )
   }
 }
