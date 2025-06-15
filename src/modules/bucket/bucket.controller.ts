@@ -93,7 +93,7 @@ export class BucketController {
           new CustomFileValidator(),
           new MaxFileSizeValidator({
             maxSize: 10485760,
-            message: 'File is too large. Max file size is 10MB',
+            message: 'Los archivos a cargar superan los 10MB',
           }),
         ],
         fileIsRequired: true,

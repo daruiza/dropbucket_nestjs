@@ -55,7 +55,7 @@ export class AuthService {
 
     return {
       user,
-      message: 'Inicio de sesión exitosa',
+      message: 'Inicio exitoso',
       token: await this.jwtService.signAsync(payload),
     };
   }
@@ -72,7 +72,7 @@ export class AuthService {
       // - Limpiar sesiones
 
       return {
-        message: 'Cierre de sesión exitoso',
+        message: 'Cierre exitoso',
         status: true
       };
     } catch (error) {

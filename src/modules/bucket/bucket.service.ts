@@ -60,7 +60,7 @@ export class BucketService {
       by: 'name' | 'date';
       order: 'asc' | 'desc';
     }
-  ): Promise<{ files: any[], folders: any[] }> {
+  ): Promise<{ files: any[], folders: any[] }> {   
 
     const params = {
       Bucket: this.bucketName,

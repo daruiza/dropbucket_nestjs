@@ -5,6 +5,11 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Puedes añadir esto para bases de datos que lo soporten y Prisma lo tenga configurado
+  // relationMode = "prisma" // Para ciertos casos de escalabilidad
+  // connect_timeout_in_seconds = 20 // Para ajustar el tiempo de espera
+  // pool_timeout = 10 // Tiempo máximo en segundos para obtener una conexión del pool
+  // max_connections = 10 // Número máximo de conexiones en el pool
 }
 
 model Rol {
